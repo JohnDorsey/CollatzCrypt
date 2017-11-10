@@ -1,15 +1,28 @@
+#The SortedList class extends the list type, but also keeps track of whether its contents have been sorted. It allows certain items to be appended without disturbing the sorted state.
+#If it is sorted, it will use a fast O(log n) search for its __contains__ method. otherwise, it will use a slow O(n) search and give a warning.
+
+
+
+
 from __future__ import print_function
 
 import bisect
 
 
 class SortedList(list):
-  def __init__(self,inputList):
+  def __init__(self,inputList,warnings=False):
     list.__init__(self,inputList)
-    self.sorted = False
-    self.warnings = False
-    if len(inputList) <= 1:
-      self.sorter = True
+    self.sorted = len(inputList) <= 1
+    if not self.sorted:
+      self.verify()
+    self.warnings = warnings
+  
+  def verify(self):
+    self.sorted = True
+    for i in range(len(self)-1):
+      if self[i] > self[i+1]:
+        self.sorted = False
+        return
   
   def __setitem__(self,index,value):
     #if type(value) != int:
