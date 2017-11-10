@@ -8,26 +8,26 @@ print("Collatz.py initialized")
 
 
 
-def meetPools(start,goal,upperBound):
-  startPool = [[],SortedList([start])]
-  goalPool = [[],SortedList([goal])]
+def meetPools(start,goal,upperBound,log=False):
+  startPool = [SortedList([]),SortedList([start])]
+  goalPool = [SortedList([]),SortedList([goal])]
   overlapByStart = []
   overlapByGoal = []
   overlapCenter = []
   startFull = False
   goalFull = False
   while True:
-    print("s",end="")
+    if log: print("s",end="")
     startFull = expandSegmentedPool(start,startPool,upperBound)
-    print("i",end="")
+    if log: print("i",end="")
     overlapByStart = intersect(startPool[-1],goalPool[-1])
     if len(overlapByStart) > 0: break
-    print("g",end="")
+    if log: print("g",end="")
     goalFull = expandSegmentedPool(goal,goalPool,upperBound)
-    print("i",end="")
+    if log: print("i",end="")
     overlapByGoal = intersect(startPool[-2],goalPool[-1])
     if len(overlapByGoal) > 0: break
-    print("i",end="")
+    if log: print("i",end="")
     overlapCenter = intersect(startPool[-1],goalPool[-1])
     if len(overlapCenter) > 0: break
     if goalFull or startFull:  break
@@ -35,7 +35,7 @@ def meetPools(start,goal,upperBound):
 
 def generatePoolEdgewise(around,numItems,upperBound):
   startTime = time.clock()
-  pool = [[],SortedList([around])]
+  pool = [SortedList([]),SortedList([around])]
   poolSize = lambda: getSum(list(len(generation) for generation in pool))
   while poolSize() < numItems:
     shouldStop = expandSegmentedPool(around,pool,upperBound)
@@ -45,29 +45,30 @@ def generatePoolEdgewise(around,numItems,upperBound):
   print("generatePoolEdgewise took " + str(time.clock() - startTime) + " seconds")
   return result
   
-def desegment(pool,drain=False):
+def desegment(pool,drain=False,doDedupe=True):
   result = []
   i = len(pool) -1
-  while i > 0:
+  while i >= 0:
     result.extend(pool[i])
     if drain:
       pool.__delitem__(len(pool)-1)
     i -= 1
   result.sort()
   preDedupeLength = len(result)
-  dedupe(result)
-  print("desegmenter had to remove " + str(preDedupeLength - len(result)) + " items")
+  if doDedupe:
+    dedupe(result)
+  #print("deseg removed " + str(preDedupeLength - len(result)) + " itms")
   return result
   
   
 def expandSegmentedPool(around,pool,upperBound):
-  pool.append( poolExpansion(pool[-1],around,pool[-2],upperBound))
+  pool.append(poolExpansion(pool[-1],around,pool[-2],upperBound))
   if len(pool[-1]) == 0:
-    print("the pool is full at iteration " + str(len(pool)-2))
+    print("xseg ful " + str(len(pool)-2))
     return True
   #pool[-1].sort()
   #dedupe(pool[-1])
-  print("iteration " + str(len(pool)-2) + ": added " + str(len(pool[-1])) + " items to pool")
+  #print("iteration " + str(len(pool)-2) + ": added " + str(len(pool[-1])) + " items to pool")
   return False
   
     
@@ -80,14 +81,14 @@ def generatePool(around,numItems,upperBound):
   while len(pool) < numItems:
     extension =  poolExpansion(extension,around,pool,upperBound) #iterating on only the last iteration's extension decreases work complexity
     if len(extension) == 0:
-      print("the pool is full, at just " + str(len(pool)) + " items")
+      print("pool ful@ " + str(len(pool)) + " itms")
       numItems = -1
     lastLength = len(pool)
     print(".",end="")
     pool.extend(extension)
     pool.sort()
     dedupe(pool)
-    print("iteration " + str(iter) + ": added " + str(len(pool)-lastLength) + "/" + str(len(extension)) + " items to pool, it now has " + str(len(pool)) + "/" + str(numItems))
+    print("iter " + str(iter) + ": added " + str(len(pool)-lastLength) + "/" + str(len(extension)) + " items to pool, it now has " + str(len(pool)) + "/" + str(numItems))
     iter += 1
   print("generatePool took " + str(time.clock() - startTime) + " seconds")
   return pool
@@ -99,9 +100,9 @@ def poolExpansion(startBatch,goal,exclusions,upperBound):
   while i < stopAt:
     result.extend(optionsFrom(startBatch[i],goal,exclusions,upperBound))
     i += 1
-  print("/",end="")
+  #print("/",end="")
   result.sort()
-  print("&",end="")
+  #print("&",end="")
   dedupe(result)
   return result
 
@@ -173,9 +174,10 @@ def browseSegmentedPool(pool,endPoint,drain=False):
     if drain:
       pool.__delitem__(len(pool))
     if len(toAdd) > 1:
-      print("the step to be added was too long: " + str(toAdd))
+      pass
+      #print("the step to be added was too long: " + str(toAdd))
     if len(toAdd) < 1:
-      print("the step to be added was empty")
+      #print("browseSeg fail")
       break
     result.append(toAdd[0])
     index -= 1
