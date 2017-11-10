@@ -10,12 +10,14 @@ import bisect
 
 
 class SortedList(list):
-  def __init__(self,inputList,warnings=False):
+  def __init__(self,inputList,warnings=True):
     list.__init__(self,inputList)
+    self.warnings = warnings
     self.sorted = len(inputList) <= 1
     if not self.sorted:
       self.verify()
-    self.warnings = warnings
+    if not self.sorted:
+      self.sort()
   
   def verify(self):
     self.sorted = True
@@ -69,14 +71,17 @@ class SortedList(list):
       self.sorted = True
   
   def __contains__(self,value):
+    if not self.sorted:
+      if self.warnings:
+        print("!",end="")
+        #raise ValueError
+      self.sort()
     if self.sorted:
       #return len(self) > 0 and value >= self[0] and value <= self[-1] and (lambda s, index: index != len(s) and s[index] == value)(self,bisect.bisect_left(self,value))
       index = bisect.bisect_left(self,value)
       return len(self) > 0 and value >= self[0] and value <= self[-1] and (index != len(self) and self[index] == value)
-    else:
-      if self.warnings:
-        print("!",end="")
-      return list.__contains__(self,value)
+    print("major error")
+    raise ValueError
       
   def clear(self):
     del self[:]

@@ -5,7 +5,7 @@ from __future__ import print_function
 '''+++++++++++++++++++++++++++++++'''
 #Configure me:
 
-textMode = True
+textMode = False
 
 trimOutput = True
 
@@ -39,11 +39,13 @@ if not textMode:
     pygame.init()
     screen = pygame.display.set_mode(SIZE)
     pygame.display.set_caption("John Dorsey's CollatzCrypt, non-recursive implementation")
+    #from jdev import *
   except:
     print("couldn't find pygame module. running in text mode...")
-    print("to view the full output, install pygame by running python's package manager directly from the shell or command prompt.")
-    print("windows command prompt or linux shell:")
-    print("    pip install pygame")
+    if ver == "3":
+      print("to view the full output, install pygame by running python's package manager directly from the shell or command prompt.")
+      print("windows command prompt or linux shell:")
+      print("    pip install pygame")
     textMode = True
 
 
@@ -283,22 +285,6 @@ def colorFrom(drawt, current, next):
     print("unknown draw type: " + str(drawt))
     return "err"
   
-def getMax(inputList):
-  if len(inputList) < 1:
-    return 0
-  record = inputList[0]
-  for item in inputList:
-    if item > record:
-      record = item
-  return record
-  
-def getMin(inputList):
-  record = inputList[0]
-  for item in inputList:
-    if item < record:
-      record = item
-  return record
-
 
 def trimOut(inputText,length=60):
   text = "" + str(inputText) + ""
@@ -339,7 +325,41 @@ testDupes = [1,2,3,3,4,5,6,6,7,7,7,8,9,9]
 print(testDupes)
 dedupe(testDupes)
 print(testDupes)'''
-      
+
+
+'''
+screen.fill([0,0,0])
+for x in range(SIZE[1]):
+  print(x)
+  for y in range(x):
+    if screen.get_at((x,y))[1] != 0:
+      continue
+    #print("#",end="")
+    upperBound = max(x,y)*14
+    pools = Collatz.meetPools(x,y,upperBound)
+    if len(pools[2]) < 1:
+      screen.set_at((x,y),[0,0,0,255])
+      continue
+    path = Collatz.browseSegmentedPool(pools[0],pools[2][0][0])
+    path.reverse()
+    path.__delitem__(-1)
+    path.extend(Collatz.browseSegmentedPool(pools[1],pools[2][0][0]))
+    for i in range(1,len(path)):
+      for ii in range(1,i):
+        #ii = i - 1
+        place = (max(path[i],path[ii]),min(path[i],path[ii]))
+        if place[0] < SIZE[0] and place[1] < SIZE[1]:
+          last = screen.get_at(place)[1]
+          screen.set_at(place,[0,min(last+1,255),63,255])
+    #screen.set_at(place,[int(255*(float(getMin(path))/float(upperBound))**0.25),0,int(255*(float(upperBound - getMax(path))/float(upperBound))**0.25),255])
+    
+    #screen.set_at((x,y),[0,Colors.arcNorm(len(Collatz.desegment(pools[2],doDedupe=False)),0.25,12.0),31,255])
+  pollEvents()
+print("done.")
+while True:
+  pass
+'''
+  
   
 print("input takes the form of 4 numbers, seperated by spaces:")
 print("overshoot poolSize start target")
