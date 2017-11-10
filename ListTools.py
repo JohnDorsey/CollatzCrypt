@@ -7,6 +7,24 @@ def getSum(inputList):
   for item in inputList:
     total += item
   return total
+  
+  
+def getMax(inputList):
+  if len(inputList) < 1:
+    return 0
+  record = inputList[0]
+  for item in inputList:
+    if item > record:
+      record = item
+  return record
+  
+def getMin(inputList):
+  record = inputList[0]
+  for item in inputList:
+    if item < record:
+      record = item
+  return record
+
 
 def distance(vect1,vect2):
   if len(vect1) > 2 or len(vect2) > 2:
@@ -28,6 +46,7 @@ def dedupe(inputList):
     i += 1
   for ii in range(length - i - 1):
     inputList.__delitem__(length - ii - 1)
+  inputList.sort()
 
     
 def intersect(inputList1, inputList2):
