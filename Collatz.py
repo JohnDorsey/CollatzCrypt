@@ -31,7 +31,8 @@ def meetPools(start,goal,upperBound,log=False):
     overlapCenter = intersect(startPool[-1],goalPool[-1])
     if len(overlapCenter) > 0: break
     if goalFull or startFull:  break
-  return (startPool, goalPool, [relevant for relevant in [overlapByStart,overlapByGoal,overlapCenter] if len(relevant) > 0])
+  #return (startPool, goalPool, [relevant for relevant in [overlapByStart,overlapByGoal,overlapCenter] if len(relevant) > 0])
+  return (startPool, goalPool, [item for test in [overlapByStart,overlapByGoal,overlapCenter] for item in test])
 
 def generatePoolEdgewise(around,numItems,upperBound):
   startTime = time.clock()
@@ -57,18 +58,18 @@ def desegment(pool,drain=False,doDedupe=True):
   preDedupeLength = len(result)
   if doDedupe:
     dedupe(result)
-  #print("deseg removed " + str(preDedupeLength - len(result)) + " itms")
+  print("deseg removed " + str(preDedupeLength - len(result)) + " items")
   return result
   
   
-def expandSegmentedPool(around,pool,upperBound):
+def expandSegmentedPool(around,pool,upperBound,log=False):
   pool.append(poolExpansion(pool[-1],around,pool[-2],upperBound))
   if len(pool[-1]) == 0:
-    print("xseg ful " + str(len(pool)-2))
+    if log: print("xseg ful " + str(len(pool)-2))
     return True
   #pool[-1].sort()
   #dedupe(pool[-1])
-  #print("iteration " + str(len(pool)-2) + ": added " + str(len(pool[-1])) + " items to pool")
+  if log: print("iteration " + str(len(pool)-2) + ": added " + str(len(pool[-1])) + " items to pool")
   return False
   
     
@@ -130,7 +131,7 @@ def optionsFrom(here,goal,exclusions,upperBound,doSort=False,doReverse=False,inv
   result = []
 #    print(str(options) +", keeping ",end="")
   for option in options:
-    if not (exclusions.__contains__(option) != invertExclusions):
+    if (exclusions.__contains__(option) == invertExclusions):
       result.append(option)
 #      else:
 #        track.discardedOptions["duplicate"] += 1
@@ -170,17 +171,21 @@ def browseSegmentedPool(pool,endPoint,drain=False):
   index = len(pool) - 1
   result = [endPoint]
   while index > 1:
-    toAdd = optionsFrom(result[-1],100,pool[index-1],int(max(endPoint,pool[1][0])*7),invertExclusions=True)
-    if drain:
-      pool.__delitem__(len(pool))
+    toAdd = optionsFrom(result[-1],1,pool[index-1],int(max(endPoint,pool[1][0])*99999),invertExclusions=True)
     if len(toAdd) > 1:
       pass
       #print("the step to be added was too long: " + str(toAdd))
     if len(toAdd) < 1:
-      #print("browseSeg fail")
+      if index > 2:
+        print("browseSegementedPool fail at index " + str(index) + " of " + str(len(pool)))
+      else:
+        pass
+        #print("browseSegmentedPool succeeded")
       break
     result.append(toAdd[0])
+    if drain:
+      pool.__delitem__(len(pool))
     index -= 1
-  result.reverse()
+  #result.reverse()
   return result
   
