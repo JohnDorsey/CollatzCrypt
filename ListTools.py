@@ -59,7 +59,11 @@ def certify(inputList):
       lengths.append(runLength)
       i += runLength - 1
     i += 1
-  print(str(len(repeats)) + " runs, " + str(getMax(lengths)) + " max, " + str(getSum(lengths)) + " total")
+  print(str(len(repeats)) + " runs",end="")
+  if len(lengths) > 0:
+    print(", " + str(max(lengths)) + " max, " + str(getSum(lengths)) + " total")
+  else:
+    print("")
 
   
       
