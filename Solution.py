@@ -1,4 +1,4 @@
-
+from ListTools import *
 
 
 def __init__(self):
@@ -51,3 +51,23 @@ def instructionsToNestedExpression(startVal,instructions):
     result = starts[operation] + result + ends[operation]
   return result
 
+def instructionsToProcedure(startVal,instructions,width=10):
+  starts = ["(","","",""]
+  ends = ["-1)/3","/2","*2","*3+1"]
+  result = ""
+  lastVal = startVal
+  for operation in instructions:
+    addition = starts[operation] + str(lastVal) + ends[operation]
+    result  += " " * (width - len(addition)) + addition + "="
+    lastVal = eval(addition.replace("/","//"))
+    result += str(lastVal) + "\n"
+  if width < 0:
+    resultSplit = [part for item in result.split("\n") for part in item.split("=") if len(part) > 0]
+    width = getMax([len(part) for part in resultSplit[::2]])
+    for i in range(len(resultSplit)):
+      if i % 2 == 0:
+        resultSplit[i] = " " * (width - len(resultSplit[i])) + resultSplit[i] + "="
+      else:
+        resultSplit[i] += "\n"
+    result = "".join(resultSplit)
+  return result
