@@ -58,4 +58,32 @@ def intersect(inputList1, inputList2):
     if not isinstance(inputList2,SortedList):
       print("IntersectSoSlow",end="")
     return [item for item in inputList1 if inputList2.__contains__(item)]
+
+def certify(inputList):
+  repeats = []
+  lengths = []
+  inputList.sort()
+  i = 0
+  while (i < len(inputList) - 1):
+    if inputList[i] == inputList[i+1]:
+      runLength = 1
+      for ii in range(2,len(inputList)-i):
+        if not inputList[i] == inputList[ii]:
+          runLength = ii
+          break
+      repeats.append(i)
+      lengths.append(runLength)
+      i += runLength - 1
+    i += 1
+  print(str(len(repeats)) + " runs, " + str(getMax(lengths)) + " max, " + str(getSum(lengths)) + " total")
+
+  
+      
+def trimNeg(inputList):
+  length = len(inputList)
+  for i in range(length):
+    if inputList[length-i-1] < 0:
+      inputList.__delitem__(length-i-1)
+    else:
+      return
     
