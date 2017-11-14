@@ -34,17 +34,17 @@ def meetPools(start,goal,upperBound,log=False):
   #return (startPool, goalPool, [relevant for relevant in [overlapByStart,overlapByGoal,overlapCenter] if len(relevant) > 0])
   return (startPool, goalPool, [item for test in [overlapByStart,overlapByGoal,overlapCenter] for item in test])
 
-def generatePoolEdgewise(around,numItems,upperBound):
+def generatePoolEdgewise(around,numItems,upperBound,log=True):
   startTime = time.clock()
   pool = [SortedList([]),SortedList([around])]
   poolSize = lambda: sum(len(generation) for generation in pool)
   while poolSize() < numItems:
-    shouldStop = expandSegmentedPool(around,pool,upperBound)
+    shouldStop = expandSegmentedPool(around,pool,upperBound,log=log)
     if shouldStop:
       break
-  result = desegment(pool,drain=True)
+  #result = desegment(pool,drain=True)
   print("generatePoolEdgewise took " + str(time.clock() - startTime) + " seconds")
-  return result
+  return pool[-1]
   
 def desegment(pool,drain=False,doDedupe=True):
   result = []
