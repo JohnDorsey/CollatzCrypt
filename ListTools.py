@@ -7,23 +7,7 @@ def getSum(inputList):
   for item in inputList:
     total += item
   return total
-  
-  
-def getMax(inputList):
-  if len(inputList) < 1:
-    return 0
-  record = inputList[0]
-  for item in inputList:
-    if item > record:
-      record = item
-  return record
-  
-def getMin(inputList):
-  record = inputList[0]
-  for item in inputList:
-    if item < record:
-      record = item
-  return record
+
 
 
 def distance(vect1,vect2):

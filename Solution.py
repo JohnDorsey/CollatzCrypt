@@ -1,4 +1,4 @@
-from ListTools import *
+
 
 
 def __init__(self):
@@ -63,7 +63,7 @@ def instructionsToProcedure(startVal,instructions,width=10):
     result += str(lastVal) + "\n"
   if width < 0:
     resultSplit = [part for item in result.split("\n") for part in item.split("=") if len(part) > 0]
-    width = getMax([len(part) for part in resultSplit[::2]])
+    width = max([len(part) for part in resultSplit[::2]])
     for i in range(len(resultSplit)):
       if i % 2 == 0:
         resultSplit[i] = " " * (width - len(resultSplit[i])) + resultSplit[i] + "="

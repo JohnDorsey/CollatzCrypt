@@ -176,7 +176,7 @@ else:
 
   def drawGuides(start,goal,upperBound,inputPath):
     screen.fill([0,0,0])
-    for val in [start,goal,upperBound,getMin(inputPath),getMax(inputPath)]:
+    for val in [start,goal,upperBound,min(inputPath),max(inputPath)]:
       drawHorizGuide(screenv(val,upperBound))
     pollEvents()
 
@@ -219,7 +219,7 @@ else:
       #print(screenv(point))
       if point > 0:
         frequencyMap[screenv(point,upperBound)] += 1
-    scale = SIZE[0] * 0.5 / getMax(frequencyMap)
+    scale = SIZE[0] * 0.5 / max(frequencyMap)
     for i in range(len(frequencyMap)-4):
       for passNum in range(4):
         pygame.draw.aaline(screen, colors["down" if frequencyMap[i+passNum]<frequencyMap[i] else "up"],(SIZE[0]*0.5+frequencyMap[i]*scale,i),(SIZE[0]*0.5+frequencyMap[i+passNum]*scale,i+passNum),1)
@@ -329,12 +329,12 @@ for x in range(SIZE[1]):
       for ii in range(1,i):
         #ii = i - 1
         place = (max(path[i],path[ii]),min(path[i],path[ii]))
-      #place = (path[i],getMax(path))
+      #place = (path[i],max(path))
       #place = toSpiral(path[i],startPos=(SIZE[0]//4,SIZE[1]//2))
         if place[0] < SIZE[0] and place[1] < SIZE[1]:
           last = screen.get_at(place)
           screen.set_at(place,[last[0],min(last[1]+1,255),63,255])
-    #screen.set_at(place,[int(255*(float(getMin(path))/float(upperBound))**0.25),0,int(255*(float(upperBound - getMax(path))/float(upperBound))**0.25),255])
+    #screen.set_at(place,[int(255*(float(min(path))/float(upperBound))**0.25),0,int(255*(float(upperBound - max(path))/float(upperBound))**0.25),255])
     
     #screen.set_at((x,y),[0,255 if len([item for item in pools[2] if item > y and item < x]) > 0 else 0, 255 if len([item for item in pools[2] if item > x]) > 0 else 0,255])
   pollEvents()
