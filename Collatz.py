@@ -37,7 +37,7 @@ def meetPools(start,goal,upperBound,log=False):
 def generatePoolEdgewise(around,numItems,upperBound):
   startTime = time.clock()
   pool = [SortedList([]),SortedList([around])]
-  poolSize = lambda: getSum(list(len(generation) for generation in pool))
+  poolSize = lambda: sum(len(generation) for generation in pool)
   while poolSize() < numItems:
     shouldStop = expandSegmentedPool(around,pool,upperBound)
     if shouldStop:

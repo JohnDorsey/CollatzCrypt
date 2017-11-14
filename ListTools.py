@@ -2,17 +2,11 @@
 from __future__ import print_function
 from SortedList import *
 
-def getSum(inputList):
-  total = 0
-  for item in inputList:
-    total += item
-  return total
-
 
 
 def distance(vect1,vect2):
   if len(vect1) > 2 or len(vect2) > 2:
-    return getSum([(vect1[i]-vect2[i])**2 for i in range(min(len(vect1),len(vect2)))])**(1.0/min(len(vect1),len(vect2)))
+    return sum((vect1[i]-vect2[i])**2 for i in range(min(len(vect1),len(vect2))))**(1.0/min(len(vect1),len(vect2)))
   return ((vect1[0]-vect2[0])**2 + (vect1[1]-vect2[1])**2)**0.5
 
 
@@ -61,7 +55,7 @@ def certify(inputList):
     i += 1
   print(str(len(repeats)) + " runs",end="")
   if len(lengths) > 0:
-    print(", " + str(max(lengths)) + " max, " + str(getSum(lengths)) + " total")
+    print(", " + str(max(lengths)) + " max, " + str(sum(lengths)) + " total")
   else:
     print("")
 
