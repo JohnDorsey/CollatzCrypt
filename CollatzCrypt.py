@@ -332,41 +332,42 @@ for i in range(min(SIZE[0],SIZE[1])**2):
   pollEvents()
   screen.set_at(toSpiral(i,startPos=(320,320)),[255,0,0,255])
 '''
+'''
 screen.fill([0,0,0])
 for x in range(SIZE[1]):
   print(x)
   for y in range(x):
-    #if screen.get_at((x,y))[0] != 0:
-      #continue
+    if screen.get_at((x,y))[1] != 0:
+      continue
     #print("#",end="")
     upperBound = max(x,y)*14
     pools = Collatz.meetPools(x,y,upperBound)
     if len(pools[2]) < 1:
       #screen.set_at((x,y),[255,0,0,255])
       continue
-    #path = Collatz.browseSegmentedPool(pools[0],pools[2][0])
-    #path.reverse()
-    #path.__delitem__(-1)
-    #path.extend(Collatz.browseSegmentedPool(pools[1],pools[2][0]))
+    path = Collatz.browseSegmentedPool(pools[0],pools[2][0])
+    path.reverse()
+    path.__delitem__(-1)
+    path.extend(Collatz.browseSegmentedPool(pools[1],pools[2][0]))
     
-    place = (x,y)
-    #for i in range(0,len(path)):
-      #for ii in range(1,i):
+    #place = (x,y)
+    for i in range(1,len(path)):
+      for ii in range(1,i):
         #ii = i - 1
-        #place = (max(path[i],path[ii]),min(path[i],path[ii]))
+        place = (max(path[i],path[ii]),min(path[i],path[ii]))
       #place = (path[i],getMax(path))
       #place = toSpiral(path[i],startPos=(SIZE[0]//4,SIZE[1]//2))
-      #if place[0] < SIZE[0] and place[1] < SIZE[1]:
-        #last = screen.get_at(place)
-        #screen.set_at(place,[last[0],min(last[1]+1,255),63,255])
+        if place[0] < SIZE[0] and place[1] < SIZE[1]:
+          last = screen.get_at(place)
+          screen.set_at(place,[last[0],min(last[1]+1,255),63,255])
     #screen.set_at(place,[int(255*(float(getMin(path))/float(upperBound))**0.25),0,int(255*(float(upperBound - getMax(path))/float(upperBound))**0.25),255])
     
-    screen.set_at((x,y),[0,255 if len([item for item in pools[2] if item > y and item < x]) > 0 else 0, 255 if len([item for item in pools[2] if item > x]) > 0 else 0,255])
+    #screen.set_at((x,y),[0,255 if len([item for item in pools[2] if item > y and item < x]) > 0 else 0, 255 if len([item for item in pools[2] if item > x]) > 0 else 0,255])
   pollEvents()
 print("done.")
 while True:
   pass
-  
+'''
   
 print("input takes the form of 4 numbers, seperated by spaces:")
 print("overshoot poolSize start target")
@@ -389,7 +390,15 @@ while True:
     overshoot, poolSize, num1, num2 = (eval(string) for string in input("overshoot poolSize start target:").split(" "))
   else:
     #overshoot, poolSize, num1, num2 = input("overshoot>"), input("poolSize>"), input("start>"), input("target>")
-    overshoot, poolSize, num1, num2 = (eval(raw_input(promptText + ">")) for promptText in ["overshoot", "poolSize", "start", "target"])
+    #overshoot, poolSize, num1, num2 = (eval(raw_input(promptText + ">")) for promptText in ["overshoot", "poolSize", "start", "target"])
+    inputNums = [eval(string) for string in raw_input("overshoot poolsize start target:").split(" ")]
+    if len(inputNums) < 4:
+      print("please enter all 4 values")
+      continue
+    overshoot = inputNums[0]
+    poolsize = inputNums[1]
+    num1 = inputNums[2]
+    num2 = inputNums[3]
   pollEvents()
   solver = CollatzSolver(num1,num2,poolSize); pollEvents()
   #print("Tracking: " + track.toString())
