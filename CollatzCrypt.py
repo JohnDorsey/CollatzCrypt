@@ -92,7 +92,7 @@ class CollatzSolver:
     print("solver initialized")
     
   def setupGoalForSolve(self):
-    print("setting up goal for solve...")
+    print("setting up goal for solve: poolSize=" + str(self.poolSize) +", start=" + str(self.start) + ", goal=" + str(self.goal))
     if self.poolSize > 1:
       self.goalPool = Collatz.generatePoolEdgewise(self.goal,self.poolSize,self.upperBound)
       self.isDone = lambda value: self.goalPool.__contains__(value)
@@ -370,7 +370,7 @@ while True:
       print("please enter all 4 values")
       continue
     overshoot = inputNums[0]
-    poolsize = inputNums[1]
+    poolSize = inputNums[1]
     num1 = inputNums[2]
     num2 = inputNums[3]
   pollEvents()
