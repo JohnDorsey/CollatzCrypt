@@ -1,16 +1,16 @@
 
 
 class SparseList(list):
-  def __init__(self,inputList,startRun=2,endRun=3):
+  def __init__(self,inputList,startRun=2,endRun=3,length=12):
     list.__init__(self,inputList)
     self.spacings = [1 for i in range(len(inputList))]
-    self.startRun = startRun
-    self.endRun = endRun
+    self.startRun, self.endRun, self.length = startRun, endRun, length
     
   def append(self,item):
     list.append(self,item)
     self.spacings.append(1)
-    self.adjust()
+    while len(self) > self.length:
+      self.adjust()
     
   def bestToRemove(self):
     recordLowIndex = self.startRun
