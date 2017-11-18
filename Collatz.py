@@ -18,12 +18,12 @@ def meetPools(start,goal,upperBound,log=False):
   goalFull = False
   while True:
     if log: print("s",end="")
-    startFull = expandSegmentedPool(start,startPool,upperBound)
+    startFull = expandSegmentedPool(start,startPool,upperBound,log=log)
     if log: print("i",end="")
     overlapByStart = intersect(startPool[-1],goalPool[-1])
     if len(overlapByStart) > 0: break
     if log: print("g",end="")
-    goalFull = expandSegmentedPool(goal,goalPool,upperBound)
+    goalFull = expandSegmentedPool(goal,goalPool,upperBound,log=log)
     if log: print("i",end="")
     overlapByGoal = intersect(startPool[-2],goalPool[-1])
     if len(overlapByGoal) > 0: break
