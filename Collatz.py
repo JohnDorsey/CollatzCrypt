@@ -7,7 +7,7 @@ from ListTools import *
 from SparseList import *
 print("Collatz.py initialized")
 
-def solve(start,goal,upperBound,log=True):
+def solve(start,goal,upperBound,log=False):
   pools = meetPools(start,goal,upperBound,sparse=(max(start,goal)>2**16),log=log)
   meetingPoint = min(pools[2])
   path = browseSegmentedPool(pools[0],meetingPoint,drain=True)
