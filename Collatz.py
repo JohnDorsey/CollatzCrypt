@@ -7,8 +7,12 @@ from ListTools import *
 from SparseList import *
 print("Collatz.py initialized")
 
-
-
+def solve(start,goal,upperBound,log=True):
+  pools = meetPools(start,goal,upperBound,sparse=(max(start,goal)>2**16),log=log)
+  meetingPoint = min(pools[2])
+  path = browseSegmentedPool(pools[0],meetingPoint,drain=True).reverse()
+  return path[:-1].extend(browseSegmentedPool(pools[1],meetingPoint,drain=True))
+  
 def meetPools(start,goal,upperBound,sparse=False,log=False):
   startPool = [SortedList([]),SortedList([start])]
   goalPool = [SortedList([]),SortedList([goal])]
@@ -79,16 +83,16 @@ def expandSegmentedPool(around,pool,upperBound,log=False):
   return False
   
     
-def generatePool(around,numItems,upperBound):
+def generatePool(around,numItems,upperBound,numIters=-1):
   startTime = time.clock()
   pool = SortedList([around])
   extension = SortedList([around])
   iter = 0
   lastLength = 0
-  while len(pool) < numItems:
+  while (len(pool) < numItems and numIters < 0) or iter < numIters:
     extension =  poolExpansion(extension,around,pool,upperBound) #iterating on only the last iteration's extension decreases work complexity
     if len(extension) == 0:
-      print("pool ful@ " + str(len(pool)) + " itms")
+      print("pool full at " + str(len(pool)) + " items")
       numItems = -1
     lastLength = len(pool)
     print(".",end="")
@@ -179,22 +183,20 @@ def browseSegmentedPool(pool,endPoint,drain=False):
   sparse = isinstance(pool,SparseList)
   while index > 1:
     if sparse:
-      pass
+      tree = generatePool(result[-1],-1,result[-1]*7**pool.spacings[index],numIters=pool.spacings[index])
+      toAdd = browseSegmentedPool(tree,min(intersect(tree[-1],pool[index-1])),drain=True)
     else:
       toAdd = optionsFrom(result[-1],1,pool[index-1],int(max(endPoint,pool[1][0])*99999),invertExclusions=True)
-    if len(toAdd) > 1:
-      pass
-      #print("the step to be added was too long: " + str(toAdd))
-    if len(toAdd) < 1:
+    if len(toAdd) < 1 or (sparse and len(toAdd[-1]) < 1):
       if index > 2:
-        print("browseSegementedPool fail at index " + str(index) + " of " + str(len(pool)))
-      else:
-        pass
-        #print("browseSegmentedPool succeeded")
+        print("browseSegementedPool (sparse="+str(sparse)+") failed at index " + str(index) + " of " + str(len(pool)))
       break
-    result.append(toAdd[0])
+    if sparse:
+      result.extend(toAdd)
+    else:
+      result.append(min(toAdd))
     if drain:
-      pool.__delitem__(len(pool))
+      pool.__delitem__(len(pool)-1)
     index -= 1
   #result.reverse()
   return result
