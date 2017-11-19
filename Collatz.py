@@ -10,8 +10,9 @@ print("Collatz.py initialized")
 def solve(start,goal,upperBound,log=True):
   pools = meetPools(start,goal,upperBound,sparse=(max(start,goal)>2**16),log=log)
   meetingPoint = min(pools[2])
-  path = browseSegmentedPool(pools[0],meetingPoint,drain=True).reverse()
-  return path[:-1].extend(browseSegmentedPool(pools[1],meetingPoint,drain=True))
+  path = browseSegmentedPool(pools[0],meetingPoint,drain=True)
+  path.reverse()
+  return path[:-1] + browseSegmentedPool(pools[1],meetingPoint,drain=True)
   
 def meetPools(start,goal,upperBound,sparse=False,log=False):
   startPool = [SortedList([]),SortedList([start])]
@@ -42,19 +43,19 @@ def meetPools(start,goal,upperBound,sparse=False,log=False):
   #return (startPool, goalPool, [relevant for relevant in [overlapByStart,overlapByGoal,overlapCenter] if len(relevant) > 0])
   return (startPool, goalPool, [item for test in [overlapByStart,overlapByGoal,overlapCenter] for item in test])
 
-def generatePoolEdgewise(around,numItems,upperBound,sparse=False,log=True):
+def generatePoolEdgewise(around,numItems,upperBound,numIters=-1,sparse=False,log=True):
   startTime = time.clock()
   pool = [SortedList([]),SortedList([around])]
   if sparse:
     pool = SparseList(pool)
   poolSize = lambda: sum(len(generation) for generation in pool)
-  while poolSize() < numItems:
+  while (poolSize() < numItems) if numIters < 0 else (len(pool)-2 < numIters):
     shouldStop = expandSegmentedPool(around,pool,upperBound,log=log)
     if shouldStop:
       break
   #result = desegment(pool,drain=True)
-  print("generatePoolEdgewise took " + str(time.clock() - startTime) + " seconds")
-  return pool[-1]
+  if log: print("generatePoolEdgewise took " + str(time.clock() - startTime) + " seconds")
+  return pool
   
 def desegment(pool,drain=False,doDedupe=True):
   result = []
@@ -177,17 +178,27 @@ def sortByClosest(contestants,target):
         contestants[i] = contestants[i+1]
         contestants[i+1] = temp
         
-def browseSegmentedPool(pool,endPoint,drain=False):
+def browseSegmentedPool(pool,endPoint,drain=False,depth=1,log=False):
   index = len(pool) - 1
   result = [endPoint]
   sparse = isinstance(pool,SparseList)
+  if log: id = ("  " * depth) + "(" + str(pool) + "<-" + str(endPoint) + ")"
   while index > 1:
     if sparse:
-      tree = generatePool(result[-1],-1,result[-1]*7**pool.spacings[index],numIters=pool.spacings[index])
-      toAdd = browseSegmentedPool(tree,min(intersect(tree[-1],pool[index-1])),drain=True)
+      tree = generatePoolEdgewise(result[-1],-1,result[-1]*(7**pool.spacings[index]),numIters=pool.spacings[index],log=False)
+      if log: print(id + " tree:" + str(tree))
+      intersections = intersect(tree[-1],pool[index-1])
+      if len(intersections) == 0:
+        toAdd = []
+      else:
+        toAdd = browseSegmentedPool(tree,min(intersections),drain=False,depth=depth+1)
+        toAdd.reverse()
+        toAdd = toAdd[1:]
+      if log: print(id + " tree toAdd:" + str(result) + "+" + str(toAdd))
     else:
       toAdd = optionsFrom(result[-1],1,pool[index-1],int(max(endPoint,pool[1][0])*99999),invertExclusions=True)
-    if len(toAdd) < 1 or (sparse and len(toAdd[-1]) < 1):
+      if log: print(id + " toAdd:" + str(result) + "+" + str(toAdd))
+    if len(toAdd) < 1:
       if index > 2:
         print("browseSegementedPool (sparse="+str(sparse)+") failed at index " + str(index) + " of " + str(len(pool)))
       break

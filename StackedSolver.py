@@ -21,7 +21,7 @@ class StackedSolver:
   def setupGoalForSolve(self):
     print("setting up goal for solve: poolSize=" + str(self.poolSize) +", start=" + str(self.start) + ", goal=" + str(self.goal))
     if self.poolSize > 1:
-      self.goalPool = Collatz.generatePoolEdgewise(self.goal,self.poolSize,self.upperBound)
+      self.goalPool = Collatz.generatePoolEdgewise(self.goal,self.poolSize,self.upperBound)[-1]
       self.isDone = lambda value: self.goalPool.__contains__(value)
     else:
       self.goalPool = Collatz.generatePool(self.goal,1,self.upperBound)
