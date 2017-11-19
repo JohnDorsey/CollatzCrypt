@@ -8,15 +8,26 @@ def valuesToOperation(a,b):
   return (0 if b*3+1 == a else 1 if b*2 == a else "LO_"+str(a)+"_"+str(b)) if b < a else (2 if a*2==b else 3 if a*3+1==b else "HI_"+str(a)+"_"+str(b)) if b > a else "EQ_"+str(a)
 def operationToValue(input, op):
   return (input-1)/3 if op==0 else input/2 if op==1 else input*2 if op==2 else input*3+1 if op==3 else op
+  
+def pathIsValid(path):
+  instructions = pathToInstructions(path)
+  errors = {}
+  index = 0
+  for operation in instructions:
+    if type(operation)!=int:
+      errors[index] = operation
+    index += 1
+  print(errors)
+  return len(errors) < 1
 
 def pathToInstructions(path):
     result = []
     for i in range(1,len(path)):
-      result.append( valuesToOperation(path[i-1],path[i]))
+      result.append(valuesToOperation(path[i-1],path[i]))
     return result
     
 def solveInstructions(startVal,instructions):
-  return  instructionsToPath(startVal,instructions,createPath=False)
+  return instructionsToPath(startVal,instructions,createPath=False)
 
 def instructionsToPath(startVal,instructions,createPath=True):
   if createPath:
@@ -24,7 +35,7 @@ def instructionsToPath(startVal,instructions,createPath=True):
   nextVal = startVal
   i = 0
   for operation in instructions:
-    nextVal =  operationToValue(nextVal,operation)
+    nextVal = operationToValue(nextVal,operation)
     if type(nextVal)==str:
       print(" instructionsToPath: Error at operation " + str(i) + "/" + str(len(instructions)) + ": operation=" + str(operation) + " nextVal=" + str(nextVal))
       print("quitting...")
