@@ -4,13 +4,17 @@ from __future__ import print_function
 import time
 from SortedList import *
 from ListTools import *
+from SparseList import *
 print("Collatz.py initialized")
 
 
 
-def meetPools(start,goal,upperBound,log=False):
+def meetPools(start,goal,upperBound,sparse=False,log=False):
   startPool = [SortedList([]),SortedList([start])]
   goalPool = [SortedList([]),SortedList([goal])]
+  if sparse:
+    startPool = SparseList(startPool)
+    goalPool = SparseList(goalPool)
   overlapByStart = []
   overlapByGoal = []
   overlapCenter = []
@@ -34,9 +38,11 @@ def meetPools(start,goal,upperBound,log=False):
   #return (startPool, goalPool, [relevant for relevant in [overlapByStart,overlapByGoal,overlapCenter] if len(relevant) > 0])
   return (startPool, goalPool, [item for test in [overlapByStart,overlapByGoal,overlapCenter] for item in test])
 
-def generatePoolEdgewise(around,numItems,upperBound,log=True):
+def generatePoolEdgewise(around,numItems,upperBound,sparse=False,log=True):
   startTime = time.clock()
   pool = [SortedList([]),SortedList([around])]
+  if sparse:
+    pool = SparseList(pool)
   poolSize = lambda: sum(len(generation) for generation in pool)
   while poolSize() < numItems:
     shouldStop = expandSegmentedPool(around,pool,upperBound,log=log)
@@ -170,8 +176,12 @@ def sortByClosest(contestants,target):
 def browseSegmentedPool(pool,endPoint,drain=False):
   index = len(pool) - 1
   result = [endPoint]
+  sparse = isinstance(pool,SparseList)
   while index > 1:
-    toAdd = optionsFrom(result[-1],1,pool[index-1],int(max(endPoint,pool[1][0])*99999),invertExclusions=True)
+    if sparse:
+      pass
+    else:
+      toAdd = optionsFrom(result[-1],1,pool[index-1],int(max(endPoint,pool[1][0])*99999),invertExclusions=True)
     if len(toAdd) > 1:
       pass
       #print("the step to be added was too long: " + str(toAdd))
