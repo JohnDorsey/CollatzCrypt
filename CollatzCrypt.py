@@ -19,6 +19,12 @@ drawType = "exact" #"direct", "type", "exact"
 
 import sys
 ver = sys.version[:1]
+if len(sys.argv) > 1:
+  print("args: " + str(sys.argv[1:]))
+  title = sys.argv[1]
+else:
+  title = "CollatzCrypt"
+
 from SortedList import *
 from SortedStack import *
 from ListTools import *
@@ -39,7 +45,7 @@ if not textMode:
     import pygame
     pygame.init()
     screen = pygame.display.set_mode(SIZE)
-    pygame.display.set_caption("John Dorsey's CollatzCrypt, non-recursive implementation")
+    pygame.display.set_caption(title)
     #from jdev import *
   except:
     print("couldn't find pygame module. running in text mode...")
@@ -229,21 +235,14 @@ for i in range(min(SIZE[0],SIZE[1])**2):
 '''
 '''
 screen.fill([0,0,0])
-for x in range(SIZE[1]):
+for x in range(SIZE[1])[::-1]:
   print(x)
-  for y in range(x):
-    if screen.get_at((x,y))[1] != 0:
+  for y in range(x)[::-1]:
+    if screen.get_at((x,y))[2] != 0:
       continue
     #print("#",end="")
-    upperBound = max(x,y)*14
-    pools = Collatz.meetPools(x,y,upperBound)
-    if len(pools[2]) < 1:
-      #screen.set_at((x,y),[255,0,0,255])
-      continue
-    path = Collatz.browseSegmentedPool(pools[0],pools[2][0])
-    path.reverse()
-    path.__delitem__(-1)
-    path.extend(Collatz.browseSegmentedPool(pools[1],pools[2][0]))
+    upperBound = max(x,y)*5
+    path = Collatz.solve(x,y,upperBound)
     
     #place = (x,y)
     for i in range(1,len(path)):
@@ -254,7 +253,9 @@ for x in range(SIZE[1]):
       #place = toSpiral(path[i],startPos=(SIZE[0]//4,SIZE[1]//2))
         if place[0] < SIZE[0] and place[1] < SIZE[1]:
           last = screen.get_at(place)
-          screen.set_at(place,[last[0],min(last[1]+1,255),63,255])
+          if last[2] != 0:
+            continue
+          screen.set_at(place,[last[0],min((64*max(path[i:ii+1]+[upperBound])//upperBound),255),63,255])
     #screen.set_at(place,[int(255*(float(min(path))/float(upperBound))**0.25),0,int(255*(float(upperBound - max(path))/float(upperBound))**0.25),255])
     
     #screen.set_at((x,y),[0,255 if len([item for item in pools[2] if item > y and item < x]) > 0 else 0, 255 if len([item for item in pools[2] if item > x]) > 0 else 0,255])
