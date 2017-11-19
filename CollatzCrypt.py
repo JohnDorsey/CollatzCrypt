@@ -266,46 +266,50 @@ while True:
 '''
   
 print("input takes the form of 4 numbers, seperated by spaces:")
-print("overshoot poolSize start target")
+print("start goal overshoot poolSize")
+print("\nif poolSize is omitted, the expanding pool solver will be used")
 print("\nhere are some tips for selecting values:\n")
 print("overshoot:")
-print("     High values of overshoot (6 and up) help avoid generation failure, but can increase runtime")
-print("     recommended values: 3, 4, 5\n")
+print("     High values of overshoot (10 and up) help avoid generation failure, but can increase runtime")
+print("     recommended values: 3, 5, 7\n")
 print("poolSize:")
 print("     poolSize controlls the goalPool size, or the number of items branching out from the goal to be cached. Larger pool size decreases runtime, unless pool generation time exceeds solve time. Difficulty of generating pool to size n increases at about n^2")
 print("     recommended values: 1 (disabled), 5, 256, 65536\n")
-print("start, target:")
-print("     start and target are the two values that the solver will attempt to connect. without a sizeable goal pool, solve time increases very fast relative to these input values.")
-print("     recommended values for each: up to 100 times the value of poolSize, or up to 10000 if not using pool\n")
+print("start, goal:")
+print("     start and goal are the two values that the solver will attempt to connect. without a sizeable goal pool, solve time increases very fast relative to these input values.")
+print("     recommended values for each: up to 100 times the value of poolSize, or up to 10000 if poolSize is 1\n")
 
 
 while True:
-  overshoot, poolSize, num1, num2 = 0, 1, 1, 1
+  num1, num2, overshoot, poolSize  = 0, 1, 1, 1
   solver = None
   if ver == "3":
-    overshoot, poolSize, num1, num2 = (eval(string) for string in input("overshoot poolSize start target:").split(" "))
+    inputNums = [eval(string) for string in input("start goal overshoot poolSize:").split(" ")]
   else:
-    #overshoot, poolSize, num1, num2 = input("overshoot>"), input("poolSize>"), input("start>"), input("target>")
-    #overshoot, poolSize, num1, num2 = (eval(raw_input(promptText + ">")) for promptText in ["overshoot", "poolSize", "start", "target"])
-    inputNums = [eval(string) for string in raw_input("overshoot poolsize start target:").split(" ")]
-    if len(inputNums) < 4:
-      print("please enter all 4 values")
-      continue
-    overshoot = inputNums[0]
-    poolSize = inputNums[1]
-    num1 = inputNums[2]
-    num2 = inputNums[3]
+    inputNums = [eval(string) for string in raw_input("start goal overshoot poolSize:").split(" ")]
+  if len(inputNums) < 3:
+    print("please enter 3 or 4 values: ")
+    print("    3 values are unpacked as (start, goal, overshoot) to run the expanding pool solver")
+    print("    4 values are unpacked as (start, goal, overshoot, poolSize) to run the stacked solver")
+    continue
+  num1 = inputNums[0]
+  num2 = inputNums[1]
+  overshoot = inputNums[2]
   pollEvents()
-  solver = StackedSolver(overshoot,poolSize,num1,num2); pollEvents()
-  #print("Tracking: " + track.toString())
-  solver.setupGoalForSolve(); pollEvents()
+  if len(inputNums) == 3:
+    poolSize = 1
+    solver = Solver(num1,num2,overshoot)
+  else:
+    poolSize = inputNums[3]
+    solver = StackedSolver(num1,num2,overshoot,poolSize)
+  pollEvents()
   solver.solve(); pollEvents()
   trimNeg(solver.path); pollEvents()
+  
   #print("option stack: " + str(solver.optionStack)[:360])
-  #print("Tracking: " + track.toString())
   print("path: " + trimOut(solver.path,length=360))
   instructions = Solution.pathToInstructions(solver.path)
-  if len(solver.goalPool) <= 1:
+  if poolSize <= 1:
     print("instructions: " + trimOut(instructions))
     print("re-solve: " + trimOut(Solution.solveInstructions(num1,instructions)))
     #Solution.reverseInstructions(instructions)
@@ -314,10 +318,9 @@ while True:
   else:
     print("instruction solver demo isn't available while using a goal pool")
   drawGuides(num1,num2,solver.upperBound,solver.path)
-  #if len(instructions)**0.5 < SIZE[0]//2:
   if len(instructions) <  min(SIZE[0],SIZE[1]) * 0.5:
     drawInstructions(instructions)
-    if len(solver.goalPool) <= 1:
+    if poolSize <= 1:
       Solution.reverseInstructions(instructions)
       drawInstructions(instructions,reversed=True)
   elif len(solver.path) < (SIZE[0]//2) * (SIZE[1]) * 3:
@@ -327,11 +330,15 @@ while True:
     drawPath(solver.path,solver.upperBound)
     drawRate(solver.upperBound)
   drawFrequencies(solver.path,solver.upperBound)
-  print(("\nsuccessfully created " if  solver.done else "failed to create ").upper() + "a path from " + str(solver.start) + " to " + str(solver.goal))
-  print("sorted: " + str(sortEnabled) + ", reversed: " + str(reverseEnabled) + ", goal pool size: " + str(len(solver.goalPool)) + ", " + str(len(solver.path)) + " steps, " + str(len(solver.visited)) + " visited\n")
-  print("goalPool non-repetition certification: ",end=""); certify(solver.goalPool)
+  print(("\nsuccessfully created " if  Solution.pathIsValid(solver.path) else "failed to create ").upper() + "a path from " + str(solver.start) + " to " + str(solver.goal))
+  print("sorted: " + str(sortEnabled) + ", reversed: " + str(reverseEnabled) + ", " + str(len(solver.path)) + " steps",end="")
+  if isinstance(solver,StackedSolver):
+    print(", " + str(len(solver.visited)) + " visited\n")
+    print("visited non-repetition certification: ",end=""); certify(solver.visited)
+    print("goalPool non-repetition certification: ",end=""); certify(solver.goalPool)
+  else:
+    print("")
   print("path non-repetition certification: ",end=""); certify(solver.path)
-  print("visited non-repetition certification: ",end=""); certify(solver.visited)
 
 
 

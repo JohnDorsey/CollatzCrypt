@@ -3,20 +3,29 @@ import Collatz
 import time
 
 
-class StackedSolver:
-
-  #stacksToPath = lambda options, selectors: 
-
-  def __init__(self,overshoot,poolSize,start,goal,sortEnabled=True,reverseEnabled=False):
+class Solver:
+  def __init__(self,start,goal,overshoot,sortEnabled=True,reverseEnabled=False):
     print("initializing solver...")
-    self.overshoot, self.poolSize, self.start, self.goal = overshoot, poolSize, start, goal
+    self.start, self.goal, self.overshoot = start, goal, overshoot
     self.sortEnabled, self.reverseEnabled = sortEnabled, reverseEnabled
-    self.visited = SortedStack([])
     self.path = []
     self.upperBound = max(self.start, self.goal) * self.overshoot
-    self.optionStack, self.selectorStack, self.head = [[start]], [0], 0
     self.done = False
     print("solver initialized")
+  
+  def solve(self):
+    self.path = Collatz.solve(self.start,self.goal,self.upperBound)
+    self.done = True
+
+class StackedSolver(Solver):
+
+  #stacksToPath = lambda options, selectors: 
+  def __init__(self,start,goal,overshoot,poolSize,sortEnabled=True,reverseEnabled=False):
+    Solver.__init__(self,start,goal,overshoot,sortEnabled=sortEnabled,reverseEnabled=reverseEnabled)
+    self.visited = SortedStack([])
+    self.optionStack, self.selectorStack, self.head = [[start]], [0], 0
+    self.poolSize = poolSize
+    self.setupGoalForSolve()
     
   def setupGoalForSolve(self):
     print("setting up goal for solve: poolSize=" + str(self.poolSize) +", start=" + str(self.start) + ", goal=" + str(self.goal))
@@ -26,7 +35,7 @@ class StackedSolver:
     else:
       self.goalPool = Collatz.generatePool(self.goal,1,self.upperBound)
       self.isDone = lambda value: self.goal == value
-    #print("internal tracking: " +track.toString())
+    print("done setting up goal")
   
   def solve(self):
     print("solving...")
