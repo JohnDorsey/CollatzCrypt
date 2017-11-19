@@ -25,7 +25,8 @@ class SparseList(list):
     
     
   def __delitem__(self,index):
-    self.spacings[index+1] += self.spacings[index]
+    if index < len(self) - 1:
+      self.spacings[index+1] += self.spacings[index]
     self.spacings.__delitem__(index)
     list.__delitem__(self,index)
     
