@@ -66,6 +66,7 @@ def fromCharRange(string,a,b):
   result = 0
   for i, char in enumerate(string[::-1]):
     result += (ord(char)-a)*(base**i)
+
  
 def fromCharArr(string,charArr):
   base = len(charArr)

@@ -19,7 +19,7 @@ def solve(start,goal,upperBound,log=False):
   meetingPoint = min(pools[2])
   path = browseSegmentedPool(pools[0],meetingPoint,drain=True)
   path.reverse()
-  return path[:-1] + browseSegmentedPool(pools[1],meetingPoint,drain=True)
+  return path[:-1] + browseSegmentedPool(pools[1],meetingPoint,drain=True), upperBound
   
 def meetPools(start,goal,upperBound,sparse=False,log=False):
   startPool = [SortedList([]),SortedList([start])]
@@ -127,6 +127,8 @@ def poolExpansion(startBatch,goal,exclusions,upperBound):
 
 def optionsFrom(here,goal,exclusions,upperBound,doSort=False,doReverse=False,invertExclusions=False):
 #    print("options for " + str(here) + ": ",end="")
+  if here > upperBound:
+    print("starting point greater than upperBound")
   options = []
   if here > 1:
     if ((here - 1.0) / 3.0) % 1.0 == 0.0:
@@ -139,7 +141,7 @@ def optionsFrom(here,goal,exclusions,upperBound,doSort=False,doReverse=False,inv
 #        track.discardedOptions["nonintegral2"] += 1
   if here * 2 < upperBound:
     options.append(here * 2)
-    if here * 3 < upperBound:
+    if here * 3 + 1 < upperBound:
       options.append(here * 3 + 1)
 #      else:
 #        track.discardedOptions["overshoot3"] += 1

@@ -1,6 +1,6 @@
 
 from __future__ import print_function
-
+print("Hello!")
 
 '''+++++++++++++++++++++++++++++++'''
 #Configure me:
@@ -11,9 +11,13 @@ trimOutput = True
 
 sortEnabled = True
 reverseEnabled = False
-logarithmicOutputEnabled = False
-drawType = "exact" #"direct", "type", "exact"
+logarithmicOutputEnabled = True
+drawType = "type" #"direct", "type", "exact"
 
+
+SIZE = (1280,640)
+fontSize = 14
+fontName = "courier"
 '''-------------------------------------------------------'''
 
 
@@ -32,20 +36,20 @@ from StackedSolver import *
 import Solution
 import Collatz
 
-
-SIZE = (1280,640)
-
-
-
 import math
 import time
 
+
 if not textMode:
   try:
+    print("importing pygame...")
     import pygame
+    print("initializing pygame...")
     pygame.init()
+    print("creating window...")
     screen = pygame.display.set_mode(SIZE)
     pygame.display.set_caption(title)
+    font = pygame.font.SysFont(fontName,fontSize)
     #from jdev import *
   except:
     print("couldn't find pygame module. running in text mode...")
@@ -57,21 +61,21 @@ if not textMode:
 
 
 alpha = 24
-colors = {"down":[210,0,255,alpha], "up":[0,255,192,alpha],"err":[127,0,0,alpha],"large":[220,220,0,alpha],"small":[15,144,220,alpha],0:[192,0,35,alpha],1:[124,192,0,alpha],2:[35,0,192,alpha],3:[0,192,124,alpha]}
+colors = {"down":[210,0,255,alpha], "up":[0,255,192,alpha],"err":[127,0,0,alpha],"large":[220,220,0,alpha],"small":[15,144,220,alpha],0:[192,0,35,alpha],1:[124,192,0,alpha],2:[35,0,192,alpha],3:[0,192,124,alpha],"hud":[255,255,255,alpha],"guide":[191,31,31,alpha]}
 
 overshoot = 4
 
 if logarithmicOutputEnabled:
-  screenv = lambda v, upperBound: SIZE[1] - min(max(int(float(SIZE[1]-4) * ((2*math.log(v+1,1.000125) / math.log(upperBound+1,1.000125)) - 1)) + 2,0),SIZE[1]-1)
+  screenv = lambda v, upperBound: SIZE[1] - min(max(int(float(SIZE[1]-1) * ((1.0*math.log(v+4,1.0025) / math.log(upperBound+4,1.0025)))) + 2,0),SIZE[1]-1)
 else:
-  screenv = lambda v, upperBound: min(max(int(float(SIZE[1]-4) * ((v / upperBound))) + 2,0),SIZE[1]-1)
+  screenv = lambda v, upperBound: SIZE[1] - min(max(int(float(SIZE[1]-4) * ((v / upperBound))) + 2,0),SIZE[1]-1)
 #
 
 
 
 
 
-
+print("configuring drawing methods...")
 
 if textMode:
   def drawRate(a):
@@ -94,32 +98,38 @@ else:
   def drawRate(upperBound):
     last = (0,0)
     current = (0,0)
-    for i in range(SIZE[1]):
+    for i in range(int(SIZE[1]**0.6666)):
+      i = int(i**1.5)
       last = current
       current = ((i)*(SIZE[0]/SIZE[1]),screenv(upperBound*i/(1.0*SIZE[1]),upperBound))
-      pygame.draw.aaline(screen,colors["err"],last,current,4)
+      pygame.draw.aaline(screen,colors["guide"],last,current,4)
       pygame.display.flip()
     pollEvents()
 
-  def drawGuides(start,goal,upperBound,inputPath):
+  def drawGuides(guidesToDraw,upperBound):
     screen.fill([0,0,0])
-    for val in [start,goal,upperBound,min(inputPath),max(inputPath)]:
-      drawHorizGuide(screenv(val,upperBound))
+    for key in guidesToDraw:
+      drawHorizGuide(screenv(guidesToDraw[key],upperBound),name=(key+": "+str(guidesToDraw[key])))
     pollEvents()
 
-  def drawHorizGuide(height):
-    pygame.draw.aaline(screen,colors["err"],(0,height),(SIZE[0],height),1)
+  def drawHorizGuide(height,name=""):
+    pygame.draw.aaline(screen,colors["guide"],(0,height),(SIZE[0],height),1)
+    if not name=="":
+      screen.blit(font.render(name,False,colors["hud"]),(8,height))
 
-  def drawPath(inputPath,upperBound):
+  def drawPath(inputPath,upperBound,label="extrema"):
     deltaPos = float(SIZE[0] * 0.5) / len(inputPath)
     color = "err"
+    scale = int(min(deltaPos,64))
     for i in range(len(inputPath)-1):
       if inputPath[i] > 0:
         color = colorFrom(drawType,inputPath[i],inputPath[i+1])
-        pygame.draw.aaline(screen,
-          colors[color],
-          (deltaPos*i,screenv(inputPath[i],upperBound)),
-          (deltaPos*(i+1),screenv(inputPath[i+1],upperBound)),1)
+        a = (deltaPos*i,screenv(inputPath[i],upperBound))
+        b = (deltaPos*(i+1),screenv(inputPath[i+1],upperBound))
+        pygame.draw.aaline(screen,colors[color],a,b,max(scale//24,1))
+        pygame.draw.circle(screen,colors[color],(int(b[0]),int(b[1])),max(scale//8,1))
+        if (label == "all" or (label == "extrema" and (inputPath[i+1]==max(inputPath[i:i+3]) or inputPath[i+1]==min(inputPath[i:i+3])))):
+          screen.blit(font.render(" " +str(inputPath[i+1]),False,colors[color]),(b[0],b[1]-0.5*fontSize+(-1 if b[1]<a[1] else 1)*0.5*fontSize))
       else:
         pygame.draw.aaline(screen,colors["err"],(deltaPos*i,0),(deltaPos*(i+1),SIZE[1]-1),1)
     pollEvents()
@@ -147,8 +157,8 @@ else:
       if point > 0:
         frequencyMap[screenv(point,upperBound)] += 1
     scale = SIZE[0] * 0.5 / max(frequencyMap)
-    for i in range(len(frequencyMap)-4):
-      for passNum in range(4):
+    for passNum in range(1,3):
+      for i in range(len(frequencyMap)-4):
         pygame.draw.aaline(screen, colors["down" if frequencyMap[i+passNum]<frequencyMap[i] else "up"],(SIZE[0]*0.5+frequencyMap[i]*scale,i),(SIZE[0]*0.5+frequencyMap[i+passNum]*scale,i+passNum),1)
       pygame.display.flip()
     pollEvents()
@@ -215,6 +225,8 @@ def toSpiral(num,startPos = (0,0)):
     if num <= 0:
       break
   return (x,y)
+  
+print("ready.\n\n\n\n")
 '''  
 testDupes = [1,2,3,3,4,5,6,6,7,7,7,8,9]      
 print(testDupes)
@@ -273,7 +285,7 @@ print("overshoot:")
 print("     High values of overshoot (10 and up) help avoid generation failure, but can increase runtime")
 print("     recommended values: 3, 5, 7\n")
 print("poolSize:")
-print("     poolSize controlls the goalPool size, or the number of items branching out from the goal to be cached. Larger pool size decreases runtime, unless pool generation time exceeds solve time. Difficulty of generating pool to size n increases at about n^2")
+print("     poolSize controlls the goalPool size, or the number of items branching out from the goal to be cached. Larger pool size decreases runtime, unless pool generation time exceeds solve time. Difficulty of generating pool to size n increases more quickly than n")
 print("     recommended values: 1 (disabled), 5, 256, 65536\n")
 print("start, goal:")
 print("     start and goal are the two values that the solver will attempt to connect. without a sizeable goal pool, solve time increases very fast relative to these input values.")
@@ -283,6 +295,7 @@ print("     recommended values for each: up to 100 times the value of poolSize, 
 while True:
   num1, num2, overshoot, poolSize  = 0, 1, 1, 1
   solver = None
+  inputNums = [-1,-1,-1,-1]
   if ver == "3":
     inputNums = [eval(string) for string in input("start goal overshoot poolSize:").split(" ")]
   else:
@@ -317,13 +330,13 @@ while True:
     #print("re-solve: " + trimOut(Solution.solveInstructions(num2,instructions)))
   else:
     print("instruction solver demo isn't available while using a goal pool")
-  drawGuides(num1,num2,solver.upperBound,solver.path)
-  if len(instructions) <  min(SIZE[0],SIZE[1]) * 0.5:
+  drawGuides({"upperBound":solver.upperBound,"min":min(solver.path),"max":max(solver.path)},solver.upperBound)
+  if len(instructions) <  min(SIZE[0],SIZE[1]) * 0.5 and False:
     drawInstructions(instructions)
     if poolSize <= 1:
       Solution.reverseInstructions(instructions)
       drawInstructions(instructions,reversed=True)
-  elif len(solver.path) < (SIZE[0]//2) * (SIZE[1]) * 3:
+  elif len(solver.path) < (SIZE[0]//2) * (SIZE[1]) * 3 and False:
     #drawSpiral(list(i**(4/3) for i in range(1,int((SIZE[1]*SIZE[0]//2)**(3/4)))))
     drawSpiral(list(item*(SIZE[0]//2)*(SIZE[1])//solver.upperBound for item in solver.path))
   else:

@@ -14,7 +14,7 @@ class Solver:
     print("solver initialized")
   
   def solve(self):
-    self.path = Collatz.solve(self.start,self.goal,self.upperBound)
+    self.path, self.upperBound = Collatz.solve(self.start,self.goal,self.upperBound)
     self.done = True
 
 class StackedSolver(Solver):
