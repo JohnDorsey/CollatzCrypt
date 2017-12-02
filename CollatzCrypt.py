@@ -276,6 +276,39 @@ print("done.")
 while True:
   pass
 '''
+
+def investigate(solver):
+  #print("option stack: " + str(solver.optionStack)[:360])
+  print("path: " + trimOut(solver.path,length=360))
+  instructions = Solution.pathToInstructions(solver.path)
+  #if poolSize <= 1:
+  print("instructions: " + trimOut(instructions,length=360))
+  print("re-solve: " + str(Solution.solveInstructions(num1,instructions)))
+  #else:
+  #  print("instruction solver demo isn't available while using a goal pool")
+  drawGuides({"upperBound":solver.upperBound,"min":min(solver.path),"max":max(solver.path)},solver.upperBound)
+  if len(instructions) <  min(SIZE[0],SIZE[1]) * 0.5 and False:
+    drawInstructions(instructions)
+    if poolSize <= 1:
+      Solution.reverseInstructions(instructions)
+      drawInstructions(instructions,reversed=True)
+  elif len(solver.path) < (SIZE[0]//2) * (SIZE[1]) * 3 and False:
+    #drawSpiral(list(i**(4/3) for i in range(1,int((SIZE[1]*SIZE[0]//2)**(3/4)))))
+    drawSpiral(list(item*(SIZE[0]//2)*(SIZE[1])//solver.upperBound for item in solver.path))
+  else:
+    drawPath(solver.path,solver.upperBound)
+    drawRate(solver.upperBound)
+  drawFrequencies(solver.path,solver.upperBound)
+  print(("\nsuccessfully created " if  Solution.pathIsValid(solver.path) else "failed to create ").upper() + "a path from " + str(solver.start) + " to " + str(solver.goal))
+  print("sorted: " + str(sortEnabled) + ", reversed: " + str(reverseEnabled) + ", " + str(len(solver.path)) + " steps",end="")
+  if isinstance(solver,StackedSolver):
+    print(", " + str(len(solver.visited)) + " visited\n")
+    print("visited non-repetition certification: ",end=""); certify(solver.visited)
+    print("goalPool non-repetition certification: ",end=""); certify(solver.goalPool)
+  else:
+    print("")
+  print("path non-repetition certification: ",end=""); certify(solver.path)
+
   
 print("input takes the form of 4 numbers, seperated by spaces:")
 print("start goal overshoot poolSize")
@@ -315,37 +348,8 @@ while True:
   def peek(path): clear(); drawPath(path,solver.upperBound); pollEvents()
   solver.solve(preview=peek); pollEvents()
   pollEvents()
-  
-  #print("option stack: " + str(solver.optionStack)[:360])
-  print("path: " + trimOut(solver.path,length=360))
-  instructions = Solution.pathToInstructions(solver.path)
-  #if poolSize <= 1:
-  print("instructions: " + trimOut(instructions,length=360))
-  print("re-solve: " + str(Solution.solveInstructions(num1,instructions)))
-  #else:
-  #  print("instruction solver demo isn't available while using a goal pool")
-  drawGuides({"upperBound":solver.upperBound,"min":min(solver.path),"max":max(solver.path)},solver.upperBound)
-  if len(instructions) <  min(SIZE[0],SIZE[1]) * 0.5 and False:
-    drawInstructions(instructions)
-    if poolSize <= 1:
-      Solution.reverseInstructions(instructions)
-      drawInstructions(instructions,reversed=True)
-  elif len(solver.path) < (SIZE[0]//2) * (SIZE[1]) * 3 and False:
-    #drawSpiral(list(i**(4/3) for i in range(1,int((SIZE[1]*SIZE[0]//2)**(3/4)))))
-    drawSpiral(list(item*(SIZE[0]//2)*(SIZE[1])//solver.upperBound for item in solver.path))
-  else:
-    drawPath(solver.path,solver.upperBound)
-    drawRate(solver.upperBound)
-  drawFrequencies(solver.path,solver.upperBound)
-  print(("\nsuccessfully created " if  Solution.pathIsValid(solver.path) else "failed to create ").upper() + "a path from " + str(solver.start) + " to " + str(solver.goal))
-  print("sorted: " + str(sortEnabled) + ", reversed: " + str(reverseEnabled) + ", " + str(len(solver.path)) + " steps",end="")
-  if isinstance(solver,StackedSolver):
-    print(", " + str(len(solver.visited)) + " visited\n")
-    print("visited non-repetition certification: ",end=""); certify(solver.visited)
-    print("goalPool non-repetition certification: ",end=""); certify(solver.goalPool)
-  else:
-    print("")
-  print("path non-repetition certification: ",end=""); certify(solver.path)
+  investigate(solver)
+
 
 
 
