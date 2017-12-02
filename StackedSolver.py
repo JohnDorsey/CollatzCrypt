@@ -13,8 +13,8 @@ class Solver:
     self.done = False
     print("solver initialized")
   
-  def solve(self):
-    self.path, self.upperBound = Collatz.solve(self.start,self.goal,self.upperBound)
+  def solve(self,preview=None):
+    self.path, self.upperBound = Collatz.solve(self.start,self.goal,self.upperBound,preview=preview)
     self.done = True
 
 class StackedSolver(Solver):
@@ -37,22 +37,29 @@ class StackedSolver(Solver):
       self.isDone = lambda value: self.goal == value
     print("done setting up goal")
   
-  def solve(self):
+  def solve(self,preview=None):
     print("solving...")
     startTime = time.clock()
-    i = 0
+    iters = 0
     self.resideSolvingWithin = True
     while(not self.done):
       self.reside()
+      if iters%4096==0:
+        if preview:
+          self.path = self.select(self.optionStack[-128:],self.selectorStack[-128:])
+          preview(self.path)
       if self.selectorStack[0] > 0:
         #print("start point failure")
         self.selectorStack[0] = 0
         break
-      i += 1
+      iters += 1
       #if i%16 == 0 and not textMode:
       #  drawPath(Solution.pathToInstructions(
-    self.path = [(-11111 if self.optionStack[i] == None else (self.optionStack[i][self.selectorStack[i]] if len(self.optionStack[i]) > self.selectorStack[i] else -777700-self.selectorStack[i])) for i in range(len(self.optionStack))]
+    self.path = self.select(self.optionStack,self.selectorStack)
     print("solving took " + str(time.clock() - startTime) + " seconds")
+    
+  def select(self,options,selectors):
+    return [(-11111 if options[i] == None else (options[i][selectors[i]] if len(options[i]) > selectors[i] else -777700-selectors[i])) for i in range(len(options))]
     
   def reside(self):
     #I create myself

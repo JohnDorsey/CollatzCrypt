@@ -7,7 +7,7 @@ from ListTools import *
 from SparseList import *
 print("Collatz.py initialized")
 
-def solve(start,goal,upperBound,log=False):
+def solve(start,goal,upperBound,log=False,preview=None):
   while True:
     pools = meetPools(start,goal,upperBound,sparse=(max(start,goal)>2**16),log=log)
     if len(pools[2]) < 1:
@@ -16,7 +16,12 @@ def solve(start,goal,upperBound,log=False):
       print(" to " + str(upperBound))
       continue
     break
-  meetingPoint = min(pools[2])
+  meetingPoint = max(pools[2])
+  print("midpoint" + ("s are " + str(pools[2]) + ", choosing " if len(pools[2]) > 1 else " is ") + str(meetingPoint))
+  if preview:
+    lengths = [(item.totalLength()-2 if isinstance(item,SparseList) else len(item)) for item in pools[0:3]]
+    path = [start] + ([-1] * lengths[0]) + [meetingPoint] + ([-1] * lengths[1]) + [goal]
+    preview(path)
   path = browseSegmentedPool(pools[0],meetingPoint,drain=True)
   path.reverse()
   return path[:-1] + browseSegmentedPool(pools[1],meetingPoint,drain=True), upperBound
@@ -25,8 +30,8 @@ def meetPools(start,goal,upperBound,sparse=False,log=False):
   startPool = [SortedList([]),SortedList([start])]
   goalPool = [SortedList([]),SortedList([goal])]
   if sparse:
-    startPool = SparseList(startPool)
-    goalPool = SparseList(goalPool)
+    startPool = SparseList(startPool,length=8)
+    goalPool = SparseList(goalPool,length=8)
   overlapByStart = []
   overlapByGoal = []
   overlapCenter = []
@@ -56,7 +61,7 @@ def generatePoolEdgewise(around,numItems,upperBound,numIters=-1,sparse=False,log
   if sparse:
     pool = SparseList(pool)
   poolSize = lambda: sum(len(generation) for generation in pool)
-  while (poolSize() < numItems) if numIters < 0 else (len(pool)-2 < numIters):
+  while (poolSize() < numItems) if numIters < 0 else ((pool.totalLength() if sparse else len(pool))-2 < numIters):
     shouldStop = expandSegmentedPool(around,pool,upperBound,log=log)
     if shouldStop:
       break

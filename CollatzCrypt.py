@@ -5,7 +5,7 @@ print("Hello!")
 '''+++++++++++++++++++++++++++++++'''
 #Configure me:
 
-textMode = False
+textMode = True
 
 trimOutput = True
 
@@ -78,26 +78,18 @@ else:
 print("configuring drawing methods...")
 
 if textMode:
-  def drawRate(a):
-    pass
-  def drawGuides(a,b,c,d):
-    pass
-  def drawHorizGuide(a):
-    pass
-  def drawPath(a,b):
-    pass
-  def drawSpiral(a):
-    pass
-  def drawFrequencies(a,b):
-    pass
-  def drawInstructions(instructions,reversed=False):
-    pass
-  def pollEvents():
-    pass
+  def drawRate(*args,**kwargs): pass
+  def drawGuides(*args,**kwargs): pass
+  def drawHorizGuide(*args,**kwargs): pass
+  def drawPath(*args,**kwargs): pass
+  def drawSpiral(*args,**kwargs): pass
+  def drawFrequencies(*args,**kwargs): pass
+  def drawInstructions(*args,**kwargs): pass
+  def pollEvents(*args,**kwargs): pass
+  def clear(*args,**kwargs): pass
 else:
   def drawRate(upperBound):
-    last = (0,0)
-    current = (0,0)
+    last, current = (0,0), (0,0)
     for i in range(int(SIZE[1]**0.6666)):
       i = int(i**1.5)
       last = current
@@ -107,7 +99,7 @@ else:
     pollEvents()
 
   def drawGuides(guidesToDraw,upperBound):
-    screen.fill([0,0,0])
+    clear()
     for key in guidesToDraw:
       drawHorizGuide(screenv(guidesToDraw[key],upperBound),name=(key+": "+str(guidesToDraw[key])))
     pollEvents()
@@ -122,14 +114,17 @@ else:
     color = "err"
     scale = int(min(deltaPos,64))
     for i in range(len(inputPath)-1):
-      if inputPath[i] > 0:
+      if inputPath[i+1] > 0:
         color = colorFrom(drawType,inputPath[i],inputPath[i+1])
         a = (deltaPos*i,screenv(inputPath[i],upperBound))
         b = (deltaPos*(i+1),screenv(inputPath[i+1],upperBound))
-        pygame.draw.aaline(screen,colors[color],a,b,max(scale//24,1))
-        pygame.draw.circle(screen,colors[color],(int(b[0]),int(b[1])),max(scale//8,1))
-        if (label == "all" or (label == "extrema" and (inputPath[i+1]==max(inputPath[i:i+3]) or inputPath[i+1]==min(inputPath[i:i+3])))):
-          screen.blit(font.render(" " +str(inputPath[i+1]),False,colors[color]),(b[0],b[1]-0.5*fontSize+(-1 if b[1]<a[1] else 1)*0.5*fontSize))
+        if inputPath[i] > 0:
+          pygame.draw.aaline(screen,colors[color],a,b,max(scale//24,1))
+        if scale > 8:
+          pygame.draw.circle(screen,colors[color],(int(b[0]),int(b[1])),max(scale//8,1))
+        if scale > fontSize:
+          if (label == "all" or (label == "extrema" and (inputPath[i+1]==max(inputPath[i:i+3]) or inputPath[i+1]==min(inputPath[i:i+3])))):
+            screen.blit(font.render(" " +str(inputPath[i+1]),False,colors[color]),(b[0],b[1]-0.5*fontSize+(-1 if b[1]<a[1] else 1)*0.5*fontSize))
       else:
         pygame.draw.aaline(screen,colors["err"],(deltaPos*i,0),(deltaPos*(i+1),SIZE[1]-1),1)
     pollEvents()
@@ -177,7 +172,12 @@ else:
     pygame.display.flip()
     for ev in pygame.event.get():
       if ev.type == pygame.QUIT:
+        print("Quitting...")
+        pygame.display.quit()
         exit()
+        
+  def clear():
+    screen.fill([0,0,0])
       
     
    
@@ -246,7 +246,7 @@ for i in range(min(SIZE[0],SIZE[1])**2):
   screen.set_at(toSpiral(i,startPos=(320,320)),[255,0,0,255])
 '''
 '''
-screen.fill([0,0,0])
+clear()
 for x in range(SIZE[1])[::-1]:
   print(x)
   for y in range(x)[::-1]:
@@ -315,8 +315,10 @@ while True:
   else:
     poolSize = inputNums[3]
     solver = StackedSolver(num1,num2,overshoot,poolSize)
+  clear()
   pollEvents()
-  solver.solve(); pollEvents()
+  def peek(path): clear(); drawPath(path,solver.upperBound); pollEvents()
+  solver.solve(preview=peek); pollEvents()
   trimNeg(solver.path); pollEvents()
   
   #print("option stack: " + str(solver.optionStack)[:360])

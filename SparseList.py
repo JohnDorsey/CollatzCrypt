@@ -1,7 +1,7 @@
 
 
 class SparseList(list):
-  def __init__(self,inputList,startRun=2,endRun=3,length=12):
+  def __init__(self,inputList,startRun=2,endRun=2,length=10):
     list.__init__(self,inputList)
     self.spacings = [1 for i in range(len(inputList))]
     self.startRun, self.endRun, self.length = startRun, endRun, length
@@ -22,7 +22,9 @@ class SparseList(list):
         recordLow = space
         recordLowIndex = i
     return recordLowIndex
-    
+  
+  def totalLength(self):
+    return sum(self.spacings)
     
   def __delitem__(self,index):
     if index < len(self.spacings) - 1:
