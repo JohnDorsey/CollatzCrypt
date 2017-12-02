@@ -1,4 +1,5 @@
 from SortedStack import *
+from ListTools import *
 import Collatz
 import time
 
@@ -30,8 +31,8 @@ class StackedSolver(Solver):
   def setupGoalForSolve(self):
     print("setting up goal for solve: poolSize=" + str(self.poolSize) +", start=" + str(self.start) + ", goal=" + str(self.goal))
     if self.poolSize > 1:
-      self.goalPool = Collatz.generatePoolEdgewise(self.goal,self.poolSize,self.upperBound)[-1]
-      self.isDone = lambda value: self.goalPool.__contains__(value)
+      self.goalPool = Collatz.generatePoolEdgewise(self.goal,self.poolSize,self.upperBound)
+      self.isDone = lambda value: self.goalPool[-1].__contains__(value)
     else:
       self.goalPool = Collatz.generatePool(self.goal,1,self.upperBound)
       self.isDone = lambda value: self.goal == value
@@ -56,10 +57,16 @@ class StackedSolver(Solver):
       #if i%16 == 0 and not textMode:
       #  drawPath(Solution.pathToInstructions(
     self.path = self.select(self.optionStack,self.selectorStack)
+    if self.poolSize > 1:
+      intersection = self.path[-1]
+      self.path.__delitem__(len(self.path)-1)
+      self.path.extend(Collatz.browseSegmentedPool(self.goalPool,intersection))
     print("solving took " + str(time.clock() - startTime) + " seconds")
     
   def select(self,options,selectors):
-    return [(-11111 if options[i] == None else (options[i][selectors[i]] if len(options[i]) > selectors[i] else -777700-selectors[i])) for i in range(len(options))]
+    result = [(-11111 if options[i] == None else (options[i][selectors[i]] if len(options[i]) > selectors[i] else -777700-selectors[i])) for i in range(len(options))]
+    trimNeg(result)
+    return result
     
   def reside(self):
     #I create myself

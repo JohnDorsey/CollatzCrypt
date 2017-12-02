@@ -129,7 +129,7 @@ def poolExpansion(startBatch,goal,exclusions,upperBound):
   #print("&",end="")
   dedupe(result)
   return result
-
+  
 def optionsFrom(here,goal,exclusions,upperBound,doSort=False,doReverse=False,invertExclusions=False):
 #    print("options for " + str(here) + ": ",end="")
   if here > upperBound:
@@ -161,36 +161,13 @@ def optionsFrom(here,goal,exclusions,upperBound,doSort=False,doReverse=False,inv
 #      else:
 #        track.discardedOptions["duplicate"] += 1
   if doSort:
-    sortedSortByClosest(result, goal)
-  if doReverse:
+    result = sorted(result, key = lambda n: abs(goal-n), reverse=doReverse)
+  elif doReverse:
     result.reverse()
 #    track.discardedOptions["non"] += len(result)
 #    print(str(result))
   return result
 
- 
-    
-def sortedSortByClosest(contestants,target):
-  if len(contestants) <= 1:
-    return
-  if contestants[-1] < target:
-    contestants.reverse()
-    return
-  if contestants[0] > target:
-    return
-  if len(contestants) == 2 and contestants[1] - target < target - contestants[0]:
-    contestants.reverse()
-    return
-  sortByClosest(contestants,target)
-   
-def sortByClosest(contestants,target):
-  temp = 0
-  for passNum in range(len(contestants)-1):
-    for i in range(len(contestants) - 1):
-      if abs(contestants[i]-target) > abs(contestants[i+1]-target):
-        temp = contestants[i]
-        contestants[i] = contestants[i+1]
-        contestants[i+1] = temp
         
 def browseSegmentedPool(pool,endPoint,drain=False,depth=1,log=False):
   index = len(pool) - 1
@@ -224,5 +201,7 @@ def browseSegmentedPool(pool,endPoint,drain=False,depth=1,log=False):
       pool.__delitem__(len(pool)-1)
     index -= 1
   #result.reverse()
+  if result == None:
+    raise TypeError
   return result
   

@@ -5,7 +5,7 @@ print("Hello!")
 '''+++++++++++++++++++++++++++++++'''
 #Configure me:
 
-textMode = True
+textMode = False
 
 trimOutput = True
 
@@ -107,7 +107,7 @@ else:
   def drawHorizGuide(height,name=""):
     pygame.draw.aaline(screen,colors["guide"],(0,height),(SIZE[0],height),1)
     if not name=="":
-      screen.blit(font.render(name,False,colors["hud"]),(8,height))
+      screen.blit(font.render(name,False,colors["hud"]),(SIZE[0]-font.size(name)[0]-16,height))
 
   def drawPath(inputPath,upperBound,label="extrema"):
     deltaPos = float(SIZE[0] * 0.5) / len(inputPath)
@@ -296,18 +296,13 @@ while True:
   num1, num2, overshoot, poolSize  = 0, 1, 1, 1
   solver = None
   inputNums = [-1,-1,-1,-1]
-  if ver == "3":
-    inputNums = [eval(string) for string in input("start goal overshoot poolSize:").split(" ")]
-  else:
-    inputNums = [eval(string) for string in raw_input("start goal overshoot poolSize:").split(" ")]
+  inputNums = [eval(string) for string in ((input if ver=="3" else raw_input)("start goal overshoot poolSize:")).split(" ")]
   if len(inputNums) < 3:
     print("please enter 3 or 4 values: ")
     print("    3 values are unpacked as (start, goal, overshoot) to run the expanding pool solver")
     print("    4 values are unpacked as (start, goal, overshoot, poolSize) to run the stacked solver")
     continue
-  num1 = inputNums[0]
-  num2 = inputNums[1]
-  overshoot = inputNums[2]
+  num1, num2, overshoot = inputNums[0], inputNums[1], inputNums[2]
   pollEvents()
   if len(inputNums) == 3:
     poolSize = 1
@@ -319,19 +314,16 @@ while True:
   pollEvents()
   def peek(path): clear(); drawPath(path,solver.upperBound); pollEvents()
   solver.solve(preview=peek); pollEvents()
-  trimNeg(solver.path); pollEvents()
+  pollEvents()
   
   #print("option stack: " + str(solver.optionStack)[:360])
   print("path: " + trimOut(solver.path,length=360))
   instructions = Solution.pathToInstructions(solver.path)
-  if poolSize <= 1:
-    print("instructions: " + trimOut(instructions))
-    print("re-solve: " + trimOut(Solution.solveInstructions(num1,instructions)))
-    #Solution.reverseInstructions(instructions)
-    #print("reversed instructions: " + trimOut(instructions))
-    #print("re-solve: " + trimOut(Solution.solveInstructions(num2,instructions)))
-  else:
-    print("instruction solver demo isn't available while using a goal pool")
+  #if poolSize <= 1:
+  print("instructions: " + trimOut(instructions,length=360))
+  print("re-solve: " + str(Solution.solveInstructions(num1,instructions)))
+  #else:
+  #  print("instruction solver demo isn't available while using a goal pool")
   drawGuides({"upperBound":solver.upperBound,"min":min(solver.path),"max":max(solver.path)},solver.upperBound)
   if len(instructions) <  min(SIZE[0],SIZE[1]) * 0.5 and False:
     drawInstructions(instructions)

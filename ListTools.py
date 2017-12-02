@@ -68,4 +68,29 @@ def trimNeg(inputList):
       inputList.__delitem__(length-i-1)
     else:
       return
+
+
+ 
     
+def sortedSortByClosest(contestants,target):
+  
+  if len(contestants) <= 1:
+    return
+  if contestants[-1] < target:
+    contestants.reverse()
+    return
+  if contestants[0] > target:
+    return
+  if len(contestants) == 2 and contestants[1] - target < target - contestants[0]:
+    contestants.reverse()
+    return
+  sortByClosest(contestants,target)
+   
+def sortByClosest(contestants,target):
+  temp = 0
+  for passNum in range(len(contestants)-1):
+    for i in range(len(contestants) - 1):
+      if abs(contestants[i]-target) > abs(contestants[i+1]-target):
+        temp = contestants[i]
+        contestants[i] = contestants[i+1]
+        contestants[i+1] = temp

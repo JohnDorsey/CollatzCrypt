@@ -17,7 +17,8 @@ def pathIsValid(path):
     if type(operation)!=int:
       errors[index] = operation
     index += 1
-  print(errors)
+  if len(errors) > 0:
+    print("The path is not valid, it contains the following errors: " + str(errors))
   return len(errors) < 1
 
 def pathToInstructions(path):
