@@ -332,7 +332,10 @@ def directNumberInterfaceDual():
     num1, num2, overshoot, poolSize  = 0, 1, 1, 1
     solver = None
     inputNums = [-1,-1,-1,-1]
-    inputNums = [eval(string) for string in ((input if ver=="3" else raw_input)("\n\nstart goal overshoot poolSize:")).split(" ")]
+    try:
+      inputNums = [eval(string) for string in ((input if ver=="3" else raw_input)("\n\nstart goal overshoot poolSize:")).split(" ")]
+    except EOFError:
+      exit()
     if len(inputNums) < 3:
       print("please enter 3 or 4 values: ")
       print("    3 values are unpacked as (start, goal, overshoot) to run the expanding pool solver")
@@ -358,9 +361,12 @@ def directNumberInterfaceDual():
 
 def textInterface():
   while True:
-    charSet = Key.B36
-    text1 = Key.conform((input if ver=="3" else raw_input)("Enter a key:"),charSet)
-    text2 = Key.conform((input if ver=="3" else raw_input)("Enter text to encrypt:"),charSet)
+    charSet = Key.B26
+    try:
+      text1 = Key.conform((input if ver=="3" else raw_input)("Enter a key:"),charSet)
+      text2 = Key.conform((input if ver=="3" else raw_input)("Enter text to encrypt:"),charSet)
+    except EOFError:
+      exit()
     num1 = Key.fromCharArr(text1,charSet)
     num2 = Key.fromCharArr(text2,charSet)
     overshoot = 7

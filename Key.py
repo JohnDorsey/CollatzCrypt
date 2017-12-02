@@ -14,7 +14,8 @@ AUEND = ord("Z")
 PRINTSTART = ord(" ")
 PRINTEND = ord("~")
 
-B36 = [chr(item) for gen in [range(NUMSTART,NUMEND+1),range(ALSTART,ALEND+1)] for item in gen]
+B26 = [chr(item) for item in range(ALSTART,ALEND+1)]
+B36 = [chr(item) for item in range(NUMSTART,NUMEND+1)] + B26
 B62 = B36 + [chr(item) for item in range(AUSTART,AUEND+1)]
 B64 = B62 + ["-","_"]
 
@@ -47,7 +48,7 @@ def toCharArr(num,charArr):
   base = len(charArr)
   chars = []
   for i in range(int(math.log(num,base+1)+2))[::-1]:
-    toAppend = math.floor(num // (base**i))
+    toAppend = int(math.floor(num // (base**i)))
     if toAppend == 0 and len(chars) == 0:
       #skipping 0
       continue
@@ -76,4 +77,15 @@ def fromCharArr(string,charArr):
   return result
   
 def conform(text,alphabet):
-  return "".join(char for char in text if alphabet.__contains__(char))
+  result = ""
+  for char in text:
+    if alphabet.__contains__(char):
+      result += char
+    else:
+      if char != char.lower():
+        if alphabet.__contains__(char.lower()):
+          result += char.lower()
+      elif char != char.upper():
+        if alphabet.__contains__(char.upper()):
+          result += char.upper()
+  return result
