@@ -127,6 +127,15 @@ else:
             screen.blit(font.render(" " +str(inputPath[i+1]),False,colors[color]),(b[0],b[1]-0.5*fontSize+(-1 if b[1]<a[1] else 1)*0.5*fontSize))
       else:
         pygame.draw.aaline(screen,colors["err"],(deltaPos*i,0),(deltaPos*(i+1),SIZE[1]-1),1)
+    message = str(Solution.pathToInstructions(inputPath)).replace(" ","")[:2*SIZE[0]//fontSize-8]
+    for i in range(len(message)):
+      if font.size(message + "...")[0] > SIZE[0]:
+        message = message[:-8]
+      else:
+        break
+    if not message[-1] == "]":
+      message += "..."
+    screen.blit(font.render(message,False,colors["hud"]),(16,SIZE[1]-1.5*font.size("|")[1]))
     pollEvents()
 
   def drawSpiral(inputPath):
@@ -151,10 +160,12 @@ else:
       #print(screenv(point))
       if point > 0:
         frequencyMap[screenv(point,upperBound)] += 1
+    frequencyMap = blur(frequencyMap,radius=2,depth=3)
     scale = SIZE[0] * 0.5 / max(frequencyMap)
-    for passNum in range(1,3):
-      for i in range(len(frequencyMap)-4):
-        pygame.draw.aaline(screen, colors["down" if frequencyMap[i+passNum]<frequencyMap[i] else "up"],(SIZE[0]*0.5+frequencyMap[i]*scale,i),(SIZE[0]*0.5+frequencyMap[i+passNum]*scale,i+passNum),1)
+    for passNum in range(1,16):
+      frequencyMap = blur(frequencyMap,radius=1+passNum,depth=1)
+      for i in range(len(frequencyMap)-8):
+        pygame.draw.aaline(screen,[int(channel*((passNum/16)**1.22*0.9+0.1)) for channel in colors["down" if frequencyMap[i+8]<frequencyMap[i] else "up"]],(SIZE[0]*0.5+frequencyMap[i]*scale,i),(SIZE[0]*0.5+frequencyMap[i+8]*scale,i+8),3)
       pygame.display.flip()
     pollEvents()
   
@@ -287,18 +298,9 @@ def investigate(solver):
   #else:
   #  print("instruction solver demo isn't available while using a goal pool")
   drawGuides({"upperBound":solver.upperBound,"min":min(solver.path),"max":max(solver.path)},solver.upperBound)
-  if len(instructions) <  min(SIZE[0],SIZE[1]) * 0.5 and False:
-    drawInstructions(instructions)
-    if poolSize <= 1:
-      Solution.reverseInstructions(instructions)
-      drawInstructions(instructions,reversed=True)
-  elif len(solver.path) < (SIZE[0]//2) * (SIZE[1]) * 3 and False:
-    #drawSpiral(list(i**(4/3) for i in range(1,int((SIZE[1]*SIZE[0]//2)**(3/4)))))
-    drawSpiral(list(item*(SIZE[0]//2)*(SIZE[1])//solver.upperBound for item in solver.path))
-  else:
-    drawPath(solver.path,solver.upperBound)
-    drawRate(solver.upperBound)
+  drawRate(solver.upperBound)
   drawFrequencies(solver.path,solver.upperBound)
+  drawPath(solver.path,solver.upperBound)
   print(("\nsuccessfully created " if  Solution.pathIsValid(solver.path) else "failed to create ").upper() + "a path from " + str(solver.start) + " to " + str(solver.goal))
   print("sorted: " + str(sortEnabled) + ", reversed: " + str(reverseEnabled) + ", " + str(len(solver.path)) + " steps",end="")
   if isinstance(solver,StackedSolver):
@@ -329,7 +331,7 @@ while True:
   num1, num2, overshoot, poolSize  = 0, 1, 1, 1
   solver = None
   inputNums = [-1,-1,-1,-1]
-  inputNums = [eval(string) for string in ((input if ver=="3" else raw_input)("start goal overshoot poolSize:")).split(" ")]
+  inputNums = [eval(string) for string in ((input if ver=="3" else raw_input)("\n\nstart goal overshoot poolSize:")).split(" ")]
   if len(inputNums) < 3:
     print("please enter 3 or 4 values: ")
     print("    3 values are unpacked as (start, goal, overshoot) to run the expanding pool solver")
@@ -343,12 +345,13 @@ while True:
   else:
     poolSize = inputNums[3]
     solver = StackedSolver(num1,num2,overshoot,poolSize)
-  clear()
   pollEvents()
   def peek(path): clear(); drawPath(path,solver.upperBound); pollEvents()
   solver.solve(preview=peek); pollEvents()
   pollEvents()
-  investigate(solver)
+  clear()
+  if solver.done:
+    investigate(solver)
 
 
 

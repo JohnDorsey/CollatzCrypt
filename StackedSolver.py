@@ -45,7 +45,7 @@ class StackedSolver(Solver):
     self.resideSolvingWithin = True
     while(not self.done):
       self.reside()
-      if iters%4096==0:
+      if iters%1024==0:
         if preview:
           self.path = self.select(self.optionStack[-128:],self.selectorStack[-128:])
           preview(self.path)
@@ -60,7 +60,7 @@ class StackedSolver(Solver):
     if self.poolSize > 1:
       intersection = self.path[-1]
       self.path.__delitem__(len(self.path)-1)
-      self.path.extend(Collatz.browseSegmentedPool(self.goalPool,intersection))
+      self.path += Collatz.browseSegmentedPool(self.goalPool,intersection)
     print("solving took " + str(time.clock() - startTime) + " seconds")
     
   def select(self,options,selectors):
