@@ -6,18 +6,19 @@ print("Hello!")
 #Configure me:
 
 textMode = False
+SIZE = (1280,640)
+fontSize = 14
+fontName = "courier"
 
 trimOutput = True
 
-sortEnabled = True
-reverseEnabled = False
 logarithmicOutputEnabled = True
 drawType = "type" #"direct", "type", "exact"
 
 
-SIZE = (1280,640)
-fontSize = 14
-fontName = "courier"
+sortEnabled = True
+reverseEnabled = False
+textInputLength = 5
 '''-------------------------------------------------------'''
 
 
@@ -291,19 +292,22 @@ while True:
 
 def investigate(solver,alphabet=None):
   show = lambda num: str(num) + (" (" + Key.toCharArr(num,alphabet) + ")" if alphabet else "")
-  #print("option stack: " + str(solver.optionStack)[:360])
-  print("path: " + trimOut([show(num) for num in solver.path] if alphabet else solver.path,length=360))
+  if not solver.done:
+    print("FAILED TO CREATE a path between " + show(solver.start) + " and " + show(solver.goal) + ": the solver never finished.")
+  elif not Solution.pathIsValid(solver.path):
+    print("FAILED TO CREATE a path between " +  show(solver.start) + " and " + show(solver.goal) + ": the solution is not valid.")
+  else:
+    print("\nSUCCESSFULLY CREATED a path from " + show(solver.start) + " to " + show(solver.goal))
+  if len(solver.path) == 0:
+    solver.path = [0]
+  print("path: " + trimOut(solver.path,length=360))
   instructions = Solution.pathToInstructions(solver.path)
-  #if poolSize <= 1:
   print("instructions: " + trimOut(instructions,length=360))
-  print("re-solve: " + str(Solution.solveInstructions(solver.path[0],instructions)))
-  #else:
-  #  print("instruction solver demo isn't available while using a goal pool")
+  print("re-solve: " + str(show(Solution.solveInstructions(solver.path[0],instructions))))
   drawGuides({"upperBound":solver.upperBound,"min":min(solver.path),"max":max(solver.path)},solver.upperBound)
   drawRate(solver.upperBound)
   drawFrequencies(solver.path,solver.upperBound)
   drawPath(solver.path,solver.upperBound)
-  print(("\nsuccessfully created " if  Solution.pathIsValid(solver.path) else "failed to create ").upper() + "a path from " + show(solver.start) + " to " + show(solver.goal))
   print("sorted: " + str(sortEnabled) + ", reversed: " + str(reverseEnabled) + ", " + str(len(solver.path)) + " steps",end="")
   if isinstance(solver,StackedSolver):
     print(", " + str(len(solver.visited)) + " visited\n")
@@ -363,7 +367,7 @@ def textInterface():
   while True:
     charSet = Key.B26
     try:
-      text1 = Key.conform((input if ver=="3" else raw_input)("Enter a key:"),charSet)
+      text1 = Key.conform((input if ver=="3" else raw_input)("\n\nEnter a key:"),charSet)
       text2 = Key.conform((input if ver=="3" else raw_input)("Enter text to encrypt:"),charSet)
     except EOFError:
       exit()
