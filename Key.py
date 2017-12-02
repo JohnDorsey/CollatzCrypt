@@ -46,10 +46,10 @@ def toCharRange(num,a,b):
 def toCharArr(num,charArr):
   base = len(charArr)
   chars = []
-  for i in range(int(math.log(num,base+1)+1))[::-1]:
-    toAppend = num // (base**i)
+  for i in range(int(math.log(num,base+1)+2))[::-1]:
+    toAppend = math.floor(num // (base**i))
     if toAppend == 0 and len(chars) == 0:
-      print("skipping 0")
+      #skipping 0
       continue
     chars.append(charArr[toAppend])
     num -= toAppend * (base**i)
@@ -75,3 +75,5 @@ def fromCharArr(string,charArr):
     result += val*(base**i)
   return result
   
+def conform(text,alphabet):
+  return "".join(char for char in text if alphabet.__contains__(char))

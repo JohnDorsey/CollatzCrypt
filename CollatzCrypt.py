@@ -35,6 +35,7 @@ from ListTools import *
 from StackedSolver import *
 import Solution
 import Collatz
+import Key
 
 import math
 import time
@@ -288,20 +289,21 @@ while True:
   pass
 '''
 
-def investigate(solver):
+def investigate(solver,alphabet=None):
+  show = lambda num: str(num) + (" (" + Key.toCharArr(num,alphabet) + ")" if alphabet else "")
   #print("option stack: " + str(solver.optionStack)[:360])
-  print("path: " + trimOut(solver.path,length=360))
+  print("path: " + trimOut([show(num) for num in solver.path] if alphabet else solver.path,length=360))
   instructions = Solution.pathToInstructions(solver.path)
   #if poolSize <= 1:
   print("instructions: " + trimOut(instructions,length=360))
-  print("re-solve: " + str(Solution.solveInstructions(num1,instructions)))
+  print("re-solve: " + str(Solution.solveInstructions(solver.path[0],instructions)))
   #else:
   #  print("instruction solver demo isn't available while using a goal pool")
   drawGuides({"upperBound":solver.upperBound,"min":min(solver.path),"max":max(solver.path)},solver.upperBound)
   drawRate(solver.upperBound)
   drawFrequencies(solver.path,solver.upperBound)
   drawPath(solver.path,solver.upperBound)
-  print(("\nsuccessfully created " if  Solution.pathIsValid(solver.path) else "failed to create ").upper() + "a path from " + str(solver.start) + " to " + str(solver.goal))
+  print(("\nsuccessfully created " if  Solution.pathIsValid(solver.path) else "failed to create ").upper() + "a path from " + show(solver.start) + " to " + show(solver.goal))
   print("sorted: " + str(sortEnabled) + ", reversed: " + str(reverseEnabled) + ", " + str(len(solver.path)) + " steps",end="")
   if isinstance(solver,StackedSolver):
     print(", " + str(len(solver.visited)) + " visited\n")
@@ -311,48 +313,63 @@ def investigate(solver):
     print("")
   print("path non-repetition certification: ",end=""); certify(solver.path)
 
-  
-print("input takes the form of 4 numbers, seperated by spaces:")
-print("start goal overshoot poolSize")
-print("\nif poolSize is omitted, the expanding pool solver will be used")
-print("\nhere are some tips for selecting values:\n")
-print("overshoot:")
-print("     High values of overshoot (10 and up) help avoid generation failure, but can increase runtime")
-print("     recommended values: 3, 5, 7\n")
-print("poolSize:")
-print("     poolSize controlls the goalPool size, or the number of items branching out from the goal to be cached. Larger pool size decreases runtime, unless pool generation time exceeds solve time. Difficulty of generating pool to size n increases more quickly than n")
-print("     recommended values: 1 (disabled), 5, 256, 65536\n")
-print("start, goal:")
-print("     start and goal are the two values that the solver will attempt to connect. without a sizeable goal pool, solve time increases very fast relative to these input values.")
-print("     recommended values for each: up to 100 times the value of poolSize, or up to 10000 if poolSize is 1\n")
+def directNumberInterfaceDual():
+  print("input takes the form of 4 numbers, seperated by spaces:")
+  print("start goal overshoot poolSize")
+  print("\nif poolSize is omitted, the expanding pool solver will be used")
+  print("\nhere are some tips for selecting values:\n")
+  print("overshoot:")
+  print("     High values of overshoot (10 and up) help avoid generation failure, but can increase runtime")
+  print("     recommended values: 3, 5, 7\n")
+  print("poolSize:")
+  print("     poolSize controlls the goalPool size, or the number of items branching out from the goal to be cached. Larger pool size decreases runtime, unless pool generation time exceeds solve time. Difficulty of generating pool to size n increases more quickly than n")
+  print("     recommended values: 1 (disabled), 5, 256, 65536\n")
+  print("start, goal:")
+  print("     start and goal are the two values that the solver will attempt to connect. without a sizeable goal pool, solve time increases very fast relative to these input values.")
+  print("     recommended values for each: up to 100 times the value of poolSize, or up to 10000 if poolSize is 1\n")
+
+  while True:
+    num1, num2, overshoot, poolSize  = 0, 1, 1, 1
+    solver = None
+    inputNums = [-1,-1,-1,-1]
+    inputNums = [eval(string) for string in ((input if ver=="3" else raw_input)("\n\nstart goal overshoot poolSize:")).split(" ")]
+    if len(inputNums) < 3:
+      print("please enter 3 or 4 values: ")
+      print("    3 values are unpacked as (start, goal, overshoot) to run the expanding pool solver")
+      print("    4 values are unpacked as (start, goal, overshoot, poolSize) to run the stacked solver")
+      continue
+    num1, num2, overshoot = inputNums[0], inputNums[1], inputNums[2]
+    pollEvents()
+    if len(inputNums) == 3:
+      poolSize = 1
+      solver = Solver(num1,num2,overshoot)
+    else:
+      poolSize = inputNums[3]
+      solver = StackedSolver(num1,num2,overshoot,poolSize)
+    pollEvents()
+    def peek(path): clear(); drawPath(path,solver.upperBound); pollEvents()
+    solver.solve(preview=peek); pollEvents()
+    clear()
+    if solver.done:
+      investigate(solver)
 
 
-while True:
-  num1, num2, overshoot, poolSize  = 0, 1, 1, 1
-  solver = None
-  inputNums = [-1,-1,-1,-1]
-  inputNums = [eval(string) for string in ((input if ver=="3" else raw_input)("\n\nstart goal overshoot poolSize:")).split(" ")]
-  if len(inputNums) < 3:
-    print("please enter 3 or 4 values: ")
-    print("    3 values are unpacked as (start, goal, overshoot) to run the expanding pool solver")
-    print("    4 values are unpacked as (start, goal, overshoot, poolSize) to run the stacked solver")
-    continue
-  num1, num2, overshoot = inputNums[0], inputNums[1], inputNums[2]
-  pollEvents()
-  if len(inputNums) == 3:
-    poolSize = 1
+
+
+def textInterface():
+  while True:
+    charSet = Key.B36
+    text1 = Key.conform((input if ver=="3" else raw_input)("Enter a key:"),charSet)
+    text2 = Key.conform((input if ver=="3" else raw_input)("Enter text to encrypt:"),charSet)
+    num1 = Key.fromCharArr(text1,charSet)
+    num2 = Key.fromCharArr(text2,charSet)
+    overshoot = 7
     solver = Solver(num1,num2,overshoot)
-  else:
-    poolSize = inputNums[3]
-    solver = StackedSolver(num1,num2,overshoot,poolSize)
-  pollEvents()
-  def peek(path): clear(); drawPath(path,solver.upperBound); pollEvents()
-  solver.solve(preview=peek); pollEvents()
-  pollEvents()
-  clear()
-  if solver.done:
-    investigate(solver)
+    pollEvents()
+    def peek(path): clear(); drawPath(path,solver.upperBound); pollEvents()
+    solver.solve(preview=peek); pollEvents()
+    clear()
+    if solver.done:
+      investigate(solver,alphabet=charSet)
 
-
-
-
+textInterface()
