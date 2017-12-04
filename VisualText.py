@@ -8,14 +8,17 @@ class Terminal:
     self.height = height
 
 class Field:
-  def __init__(self,text,default="",maxLength=5):
+  def __init__(self,text,value="",default="",maxLength=5):
     self.text = text
     self.default = default
-    self.value = default
-    self.recent = [default]
+    self.value = value
+    self.recent = [self.value]
     self.pointer = 0
     self.focused = False
     self.maxLength = maxLength
+    
+  def get_value(self):
+    return self.value if not self.value == "" else self.default
     
   def __str__(self):
     return self.text+self.value
@@ -42,7 +45,7 @@ class Field:
     
   def enter(self):
     self.focused = False
-    self.recent += [self.value]
+    self.recent += [self.get_value()]
     self.pointer = len(self.recent) - 1
     while len(self.recent) > 16:
       self.recent.__delitem__(0)
@@ -57,7 +60,7 @@ class FixedTerminal:
     self.pos = (0,target.get_size()[1] - len(self.fields)*self.lineHeight)
     
   def get_values(self):
-    return [field.value for field in self.fields]
+    return [field.get_value() for field in self.fields]
   def get_texts(self):
     return [field.text for field in self.fields]
     

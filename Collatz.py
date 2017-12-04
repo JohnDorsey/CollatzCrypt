@@ -12,7 +12,7 @@ def solve(start,goal,upperBound,log=False,preview=None):
     pools = meetPools(start,goal,upperBound,sparse=(max(start,goal)>2**16),log=log)
     if len(pools[2]) < 1:
       print("raising upperBound from " + str(upperBound),end="")
-      upperBound += int(upperBound * 0.75)
+      upperBound += int(max(upperBound,3) * 0.75)
       print(" to " + str(upperBound))
       continue
     break

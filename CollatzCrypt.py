@@ -378,7 +378,7 @@ def getTextInput(text):
 
 def textInterface():
   if not textMode:
-    ft = FixedTerminal([Field("Enter a key:"),Field("Enter text to encrypt:")],pygame,InterfaceFont,screen)
+    ft = FixedTerminal([Field("Enter a key:",default="c"),Field("Enter text to encrypt:",default="b")],pygame,InterfaceFont,screen)
   while True:
     if textMode:
       try:
