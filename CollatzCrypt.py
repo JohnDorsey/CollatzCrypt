@@ -171,7 +171,7 @@ else:
       if point > 0:
         frequencyMap[screenv(point,upperBound)] += 1
     frequencyMap = blur(frequencyMap,radius=2,depth=3)
-    scale = SIZE[0] * 0.5 / max(frequencyMap)
+    scale = SIZE[0] * 0.5 / max(max(frequencyMap),0.5**20)
     for passNum in range(1,16):
       frequencyMap = blur(frequencyMap,radius=1+passNum,depth=1)
       for i in range(len(frequencyMap)-8):
