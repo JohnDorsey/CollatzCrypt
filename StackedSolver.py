@@ -6,7 +6,7 @@ import time
 
 class Solver:
   def __init__(self,start,goal,overshoot,sortEnabled=True,reverseEnabled=False):
-    print("initializing solver...")
+    print("initializing solver... ",end="")
     self.start, self.goal, self.overshoot = start, goal, overshoot
     self.sortEnabled, self.reverseEnabled = sortEnabled, reverseEnabled
     self.path = []

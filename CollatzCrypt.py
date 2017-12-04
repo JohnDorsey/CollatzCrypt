@@ -54,6 +54,8 @@ if not textMode:
       screen = pygame.display.set_mode(SIZE)
       pygame.display.set_caption(title)
     font = pygame.font.SysFont(fontName,fontSize)
+    InterfaceFont = pygame.font.SysFont(fontName,fontSize*2)
+    from VisualText import *
     #from jdev import *
   except:
     print("couldn't find pygame module. running in text mode...")
@@ -78,6 +80,8 @@ else:
 
 
 
+def getTextInput(text):
+  return (input if ver=="3" else raw_input)(text)
 
 print("configuring drawing methods...")
 
@@ -91,6 +95,8 @@ if textMode:
   def drawInstructions(*args,**kwargs): pass
   def pollEvents(*args,**kwargs): pass
   def clear(*args,**kwargs): pass
+  def getInput(text):
+    return getTextInput(text)
 else:
   def drawRate(upperBound):
     last, current = (0,0), (0,0)
@@ -139,7 +145,7 @@ else:
         break
     if not message[-1] == "]":
       message += "..."
-    screen.blit(font.render(message,False,colors["hud"]),(16,SIZE[1]-1.5*font.size("|")[1]))
+    screen.blit(font.render(message,False,colors["hud"]),(16,0.5*font.size("|")[1]))
     pollEvents()
 
   def drawSpiral(inputPath):
@@ -193,6 +199,10 @@ else:
         
   def clear():
     screen.fill([0,0,0])
+  
+  def getInput(text):
+    return getTextInput(text)
+  
       
     
    
@@ -306,7 +316,7 @@ def investigate(solver,alphabet=None):
   instructions = Solution.pathToInstructions(solver.path)
   print("instructions: " + trimOut(instructions,length=360))
   print("re-solve: " + str(show(Solution.solveInstructions(solver.path[0],instructions))))
-  drawGuides({"upperBound":solver.upperBound,"min":min(solver.path),"max":max(solver.path)},solver.upperBound)
+  drawGuides({"min":min(solver.path),"max":max(solver.path)},solver.upperBound)
   drawRate(solver.upperBound)
   drawFrequencies(solver.path,solver.upperBound)
   drawPath(solver.path,solver.upperBound)
@@ -339,7 +349,7 @@ def directNumberInterfaceDual():
     solver = None
     inputNums = [-1,-1,-1,-1]
     try:
-      inputNums = [eval(string) for string in ((input if ver=="3" else raw_input)("\n\nstart goal overshoot poolSize:")).split(" ")]
+      inputNums = [eval(string) for string in (getInput("\n\nstart goal overshoot poolSize:")).split(" ")]
     except EOFError:
       exit()
     if len(inputNums) < 3:
@@ -367,14 +377,20 @@ def getTextInput(text):
   return Key.conform((input if ver=="3" else raw_input)(text),charSet)
 
 def textInterface():
+  if not textMode:
+    ft = FixedTerminal([Field("Enter a key:"),Field("Enter text to encrypt:")],pygame,InterfaceFont,screen)
   while True:
-    try:
-      text1 = getTextInput("\n\nEnter a key:")
-      if text1 == "": return
-      text2 = getTextInput("Enter text to encrypt")
-      if text2 == "": return
-    except EOFError:
-      exit()
+    if textMode:
+      try:
+        text1 = getTextInput("\n\nEnter a key:")
+        if text1 == "": return
+        text2 = getTextInput("Enter text to encrypt")
+        if text2 == "": return
+      except EOFError:
+        exit()
+    else:
+      ft.getInputs()
+      text1, text2 = ft.get_values()
     num1 = Key.fromCharArr(text1,charSet)
     num2 = Key.fromCharArr(text2,charSet)
     overshoot = 7
