@@ -19,6 +19,7 @@ class SortedList(list):
     if not self.sorted:
       self.sort()
   
+  """Check whether list is sorted, update self.sorted"""
   def verify(self):
     self.sorted = True
     for i in range(len(self)-1):
@@ -26,9 +27,8 @@ class SortedList(list):
         self.sorted = False
         return
   
+  """implements __setitem__ to assign a value to an index"""
   def __setitem__(self,index,value):
-    #if type(value) != int:
-    #  raise TypeError
     list.__setitem__(self,index,value)
     if index > 0:
       if not self[index-1] < self[index]:
@@ -39,25 +39,22 @@ class SortedList(list):
         self.sorted = False
         return
   
+  """implements __getitem__ to get a value from an index"""
   def __getitem__(self,index):
     if index < 0:
       return list.__getitem__(self,len(self)+index)
     return list.__getitem__(self,index)
   
+  """append and make sure the SortedList is still sorted"""
   def append(self,item):
-    #if type(item) != int:
-    #  raise TypeError
     if len(self) > 0 and item < self[-1]:
       self.sorted = False
     list.append(self,item)
   
+  """extend and make sure the SortedList is still sorted"""
   def extend(self,items):
     if len(items) < 1:
       return
-    '''for item in items:
-      if type(item) != int:
-        raise ValueError
-        return'''
     if self.sorted:
       items.sort()
       if len(self) >= 1:
@@ -65,24 +62,25 @@ class SortedList(list):
           self.sorted = False
     list.extend(self,items)
   
+  """sort and update self.sorted"""
   def sort(self,):
     if not self.sorted:
       list.sort(self)
       self.sorted = True
   
+  """use a fast search if sorted. if not sorted, give a warning if warnings are enabled"""
   def __contains__(self,value):
     if not self.sorted:
       if self.warnings:
         print("!",end="")
-        #raise ValueError
       self.sort()
     if self.sorted:
-      #return len(self) > 0 and value >= self[0] and value <= self[-1] and (lambda s, index: index != len(s) and s[index] == value)(self,bisect.bisect_left(self,value))
       index = bisect.bisect_left(self,value)
       return len(self) > 0 and value >= self[0] and value <= self[-1] and (index != len(self) and self[index] == value)
     print("major error")
     raise ValueError
       
+  """empty the SortedList"""
   def clear(self):
     del self[:]
     self.sorted = True
