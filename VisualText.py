@@ -2,11 +2,6 @@
 
 
 
-class Terminal:
-  def __init__(self,width=24,height=2):
-    self.width = width
-    self.height = height
-
 class Field:
   def __init__(self,text,value="",default="",maxLength=5):
     self.text = text
@@ -47,7 +42,7 @@ class Field:
     self.focused = False
     self.recent += [self.get_value()]
     self.pointer = len(self.recent) - 1
-    while len(self.recent) > 16:
+    while len(self.recent) > 100:
       self.recent.__delitem__(0)
     
 class FixedTerminal:

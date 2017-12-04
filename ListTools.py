@@ -59,20 +59,6 @@ def certify(inputList):
   else:
     print("")
 
-def smooth(inputList,clamp=1,radius=3,blend=1,window=0.0000125):
-  result = [0] * len(inputList)
-  sampleWeights = [((i**2+1)**-0.5)**window for i in range(-radius-1,radius+2)]
-  lowest = sampleWeights[0]
-  sampleWeights = [item - lowest for item in sampleWeights[1:-1]]
-  #print(sampleWeights)
-  for w in range(1,len(inputList)-1):
-    sampleRange = (max(w-radius,1),min(w+radius+1,len(result)-1))
-    sample = (item * sampleWeights[i] for i, item in enumerate(inputList[sampleRange[0]:sampleRange[1]]))
-    result[w] = sum(sample)/sum(sampleWeights)
-  for ci in [0,-1]:
-    result[ci] = result[ci]*(1-clamp) + inputList[ci]*clamp
-  return [result[i]*blend + inputList[i]*(1-blend) for i in range(len(result))]
-
 def avg(input): #accepts generators
   result, i = 0, 1
   for item in input:
