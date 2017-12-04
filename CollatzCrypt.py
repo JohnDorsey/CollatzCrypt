@@ -41,6 +41,7 @@ import Key
 import math
 import time
 
+charSet = Key.B26
 
 if not textMode:
   try:
@@ -49,17 +50,18 @@ if not textMode:
     print("initializing pygame...")
     pygame.init()
     print("creating window...")
-    screen = pygame.display.set_mode(SIZE)
-    pygame.display.set_caption(title)
+    if __name__=="__main__":
+      screen = pygame.display.set_mode(SIZE)
+      pygame.display.set_caption(title)
     font = pygame.font.SysFont(fontName,fontSize)
     #from jdev import *
   except:
     print("couldn't find pygame module. running in text mode...")
+    textMode = True
     if ver == "3":
       print("to view the full output, install pygame by running python's package manager directly from the shell or command prompt.")
       print("windows command prompt or linux shell:")
       print("    pip install pygame")
-    textMode = True
 
 
 alpha = 24
@@ -361,14 +363,16 @@ def directNumberInterfaceDual():
       investigate(solver)
 
 
-
+def getTextInput(text):
+  return Key.conform((input if ver=="3" else raw_input)(text),charSet)
 
 def textInterface():
   while True:
-    charSet = Key.B26
     try:
-      text1 = Key.conform((input if ver=="3" else raw_input)("\n\nEnter a key:"),charSet)
-      text2 = Key.conform((input if ver=="3" else raw_input)("Enter text to encrypt:"),charSet)
+      text1 = getTextInput("\n\nEnter a key:")
+      if text1 == "": return
+      text2 = getTextInput("Enter text to encrypt")
+      if text2 == "": return
     except EOFError:
       exit()
     num1 = Key.fromCharArr(text1,charSet)
@@ -382,4 +386,9 @@ def textInterface():
     if solver.done:
       investigate(solver,alphabet=charSet)
 
-textInterface()
+def decryptInterface():
+  while True:
+    return
+
+if __name__=="__main__":
+  textInterface()
