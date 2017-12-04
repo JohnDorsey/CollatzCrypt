@@ -33,10 +33,10 @@ def toCharRange(num,a,b):
     b = ord(b)
   base = b - a
   chars = []
-  for i in range(int(math.log(num,base+1)+1))[::-1]:
+  for i in range(int(math.log(num+1,base+1)+1))[::-1]:
     toAppend = num // (base**i)
     if toAppend == 0 and len(chars) == 0:
-      print("skipping 0")
+      #skipping 0
       continue
     chars.append(chr(toAppend+a))
     num -= toAppend * (base**i)
@@ -45,9 +45,11 @@ def toCharRange(num,a,b):
   return "".join(chars)
   
 def toCharArr(num,charArr):
+  if num < len(charArr):
+    return charArr[num]
   base = len(charArr)
   chars = []
-  for i in range(int(math.log(num,base+1)+2))[::-1]:
+  for i in range(int(math.log(num+1,base+1)+2))[::-1]:
     toAppend = int(math.floor(num // (base**i)))
     if toAppend == 0 and len(chars) == 0:
       #skipping 0
