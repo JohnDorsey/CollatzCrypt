@@ -315,6 +315,7 @@ def investigate(solver,alphabet=None):
   print("path: " + trimOut(solver.path,length=360))
   instructions = Solution.pathToInstructions(solver.path)
   print("instructions: " + trimOut(instructions,length=360))
+  print("Encrypted data:" + show(Solution.instructionsToNumber(instructions)))
   print("re-solve: " + str(show(Solution.solveInstructions(solver.path[0],instructions))))
   drawGuides({"min":min(solver.path),"max":max(solver.path)},solver.upperBound)
   drawRate(solver.upperBound)
@@ -378,7 +379,7 @@ def getTextInput(text):
 
 def textInterface():
   if not textMode:
-    ft = FixedTerminal([Field("Enter a key:",default="c"),Field("Enter text to encrypt:",default="b")],pygame,InterfaceFont,screen)
+    ft = FixedTerminal([Field("Enter a key: ",default="c"),Field("Enter text to encrypt: ",default="b")],pygame,InterfaceFont,screen)
   while True:
     if textMode:
       try:

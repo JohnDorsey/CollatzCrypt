@@ -27,6 +27,9 @@ def pathToInstructions(path):
       result.append(valuesToOperation(path[i-1],path[i]))
     return result
     
+def instructionsToNumber(instructions):
+  return int("".join(str(operation) for operation in instructions),base=4)
+    
 def solveInstructions(startVal,instructions):
   return instructionsToPath(startVal,instructions,createPath=False)
 
