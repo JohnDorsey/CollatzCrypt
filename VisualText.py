@@ -77,9 +77,9 @@ class FixedTerminal:
   def draw(self,target):
     i = 0
     for field in self.fields:
-      text = str(field) + ("|" if field.focused else "")
+      text = str(field) + ("_" if field.focused else "")
       cpos = (self.pos[0],self.pos[1]+i*self.lineHeight)
-      self.pygame.draw.rect(target, [95,95,95,255], self.pygame.Rect(cpos,self.font.size(text+("a"*(1+field.maxLength-len(field.value))))))
+      self.pygame.draw.rect(target, [80,85,95,255], self.pygame.Rect(cpos,self.font.size(field.text+("m"*(1+field.maxLength)))))
       target.blit(self.font.render(text,False,[255,255,255,255]),cpos)
       i += 1
     self.pygame.display.flip()
