@@ -27,8 +27,18 @@ def pathToInstructions(path):
       result.append(valuesToOperation(path[i-1],path[i]))
     return result
     
+def pathToIndexed(path):
+  result = []
+  for i in range(1,len(path)):
+    options = Collatz.optionsFrom(path[i-1],1,[],path[i-1]*4+1)
+    operation = valuesToOperation(path[i-1],path[i])
+    result.append((options.index(operation),len(options)))
+  return result
+    
 def instructionsToNumber(instructions):
   return int("".join(str(operation) for operation in instructions),base=4)
+def numberToInstructions(number):
+  return [int(char) for char in Key.toCharRun(number,"0",4)]
     
 def solveInstructions(startVal,instructions):
   return instructionsToPath(startVal,instructions,createPath=False)
