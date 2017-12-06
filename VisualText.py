@@ -1,5 +1,7 @@
 
 
+import time
+
 
 
 class Field:
@@ -46,11 +48,9 @@ class Field:
       self.recent.__delitem__(0)
     
 class FixedTerminal:
-  def __init__(self,fields,pygame,font,target):
-    self.fields = fields
-    self.target = target
-    self.pygame = pygame
-    self.font = font
+  def __init__(self,fields,pygame,font,target,blinkRate=0.6):
+    self.fields, self.target, self.pygame, self.font = fields, target, pygame, font
+    self.blinkRate = blinkRate
     self.lineHeight = int(self.font.size("|")[1] * 1.2)
     self.pos = (0,target.get_size()[1] - len(self.fields)*self.lineHeight)
     
@@ -77,7 +77,7 @@ class FixedTerminal:
   def draw(self,target):
     i = 0
     for field in self.fields:
-      text = str(field) + ("_" if field.focused else "")
+      text = str(field) + ("_" if field.focused and time.clock()%self.blinkRate<self.blinkRate*0.499 else "")
       cpos = (self.pos[0],self.pos[1]+i*self.lineHeight)
       self.pygame.draw.rect(target, [80,85,95,255], self.pygame.Rect(cpos,self.font.size(field.text+("m"*(1+field.maxLength)))))
       target.blit(self.font.render(text,False,[255,255,255,255]),cpos)
@@ -86,6 +86,8 @@ class FixedTerminal:
   
   def edit(self,field):
     while True:
+      time.sleep(0.05)
+      self.draw(self.target)
       for event in self.pygame.event.get():
         if event.type == self.pygame.QUIT:
           print("quitting from text loop.")
