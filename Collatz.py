@@ -18,6 +18,7 @@ def solve(start,goal,upperBound,log=False,preview=None):
       continue
     break
   meetingPoint = max(pools[2])
+  print("segments of sizes " + str(len(pools[0][-1])) + " and " + str(len(pools[1][-1])) + " have met.")
   print("midpoint" + ("s are " + str(pools[2]) + ", choosing " if len(pools[2]) > 1 else " is ") + str(meetingPoint))
   if preview:
     lengths = [(item.totalLength()-2 if isinstance(item,SparseList) else len(item)) for item in pools[0:3]]

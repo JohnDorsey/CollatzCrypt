@@ -165,17 +165,21 @@ else:
     pollEvents()
        
   def drawFrequencies(inputPath,upperBound):
+    dodge = lambda trip, amt: [int(chan*(1-amt) + 255*amt) for chan in trip]
     frequencyMap = [0 for i in range(SIZE[1]+8)]
     for point in inputPath:
       #print(screenv(point))
       if point > 0:
         frequencyMap[screenv(point,upperBound)] += 1
-    frequencyMap = blur(frequencyMap,radius=2,depth=3)
+    frequencyMap = blur(frequencyMap,radius=4,depth=3)
     scale = SIZE[0] * 0.5 / max(max(frequencyMap),0.5**20)
     for passNum in range(1,16):
-      frequencyMap = blur(frequencyMap,radius=1+passNum,depth=1)
+      frequencyMap = blur(frequencyMap,radius=1+int(passNum**1.1),depth=1)
+      dodgedColors = {}
+      for key in colors:
+        dodgedColors[key] = dodge(colors[key],(passNum/20)**2)
       for i in range(len(frequencyMap)-8):
-        pygame.draw.aaline(screen,[int(channel*((passNum/16)**1.22*0.9+0.1)) for channel in colors["down" if frequencyMap[i+8]<frequencyMap[i] else "up"]],(SIZE[0]*0.5+frequencyMap[i]*scale,i),(SIZE[0]*0.5+frequencyMap[i+8]*scale,i+8),3)
+        pygame.draw.aaline(screen,[int(channel*((passNum/16)**1.22*0.9+0.1)) for channel in dodgedColors["down" if frequencyMap[i+8]<frequencyMap[i] else "up"]],(SIZE[0]*0.5+frequencyMap[i]*scale,i),(SIZE[0]*0.5+frequencyMap[i+8]*scale,i+8),3)
       pygame.display.flip()
     pollEvents()
   
@@ -252,55 +256,8 @@ def toSpiral(num,startPos = (0,0)):
   return (x,y)
   
 print("ready.\n\n\n\n")
-'''  
-testDupes = [1,2,3,3,4,5,6,6,7,7,7,8,9]      
-print(testDupes)
-dedupe(testDupes)
-print(testDupes)
 
 
-testDupes = [1,2,3,3,4,5,6,6,7,7,7,8,9,9]      
-print(testDupes)
-dedupe(testDupes)
-print(testDupes)'''
-'''
-screen.fill([0,0,0])
-for i in range(min(SIZE[0],SIZE[1])**2):
-  screen.set_at(toSpiral(i,startPos=(320,320)),[255,255,255,255])
-  pollEvents()
-  screen.set_at(toSpiral(i,startPos=(320,320)),[255,0,0,255])
-'''
-'''
-clear()
-for x in range(SIZE[1])[::-1]:
-  print(x)
-  for y in range(x)[::-1]:
-    if screen.get_at((x,y))[2] != 0:
-      continue
-    #print("#",end="")
-    upperBound = max(x,y)*5
-    path = Collatz.solve(x,y,upperBound)
-    
-    #place = (x,y)
-    for i in range(1,len(path)):
-      for ii in range(1,i):
-        #ii = i - 1
-        place = (max(path[i],path[ii]),min(path[i],path[ii]))
-      #place = (path[i],max(path))
-      #place = toSpiral(path[i],startPos=(SIZE[0]//4,SIZE[1]//2))
-        if place[0] < SIZE[0] and place[1] < SIZE[1]:
-          last = screen.get_at(place)
-          if last[2] != 0:
-            continue
-          screen.set_at(place,[last[0],min((64*max(path[i:ii+1]+[upperBound])//upperBound),255),63,255])
-    #screen.set_at(place,[int(255*(float(min(path))/float(upperBound))**0.25),0,int(255*(float(upperBound - max(path))/float(upperBound))**0.25),255])
-    
-    #screen.set_at((x,y),[0,255 if len([item for item in pools[2] if item > y and item < x]) > 0 else 0, 255 if len([item for item in pools[2] if item > x]) > 0 else 0,255])
-  pollEvents()
-print("done.")
-while True:
-  pass
-'''
 
 def investigate(solver,alphabet=None):
   show = lambda num: str(num) + (" (" + Key.toCharArr(num,alphabet) + ")" if alphabet else "")
@@ -385,13 +342,14 @@ def textInterface():
       try:
         text1 = getTextInput("\n\nEnter a key:")
         if text1 == "": return
-        text2 = getTextInput("Enter text to encrypt")
+        text2 = getTextInput("Enter text to encrypt:")
         if text2 == "": return
       except EOFError:
         exit()
     else:
       ft.getInputs()
       text1, text2 = ft.get_values()
+    text1, text2 = text1[:5], text2[:6]
     num1 = Key.fromCharArr(text1,charSet)
     num2 = Key.fromCharArr(text2,charSet)
     overshoot = 7
