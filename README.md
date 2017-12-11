@@ -2,7 +2,7 @@
 A program to encrypt a numeric payload as a sequence of transformations linking it to a numeric key.
 
 
-For these two rules: if even, divide by 2; if odd, multiply by 3 and add 1 - The Collatz Conjecture questions whether there is any starting number which will not reach 1. If such a number exists, it's way bigger than 2^34 - Logically, the first thing I did when I learned about the Collatz conjecture was solve it for the first 14 billion integers, as if nobody else had already done that. So in this project we will assume that every number can be transformed to 1. if this assumption is incorrect, some numbers will be invalid inputs. (If you're using my program and it crashes, we may have answered a question that's a century old. or maybe I made a mistake in my code.)
+For these two rules: if even, divide by 2; if odd, multiply by 3 and add 1 - The Collatz Conjecture questions whether there is any starting number which will not reach 1. If such a number exists, it's way bigger than 2^34 -  So in this project we will assume that every number can be transformed to 1. if this assumption is incorrect, some numbers will be invalid inputs.
 
 There are other ways to use the two Collatz operations besides selecting one based on n%2 - In my program, an operation is valid whenever it yeilds another integer. Additionally, the reversed versions of both operations can be used. By selecting only from these 4 operations, it is possible to travel from any integer to any other integer, constructing a path between them. I have not yet proven that it is always possible to construct a path which does not pass through 1.
 
@@ -18,4 +18,4 @@ In my first tests, I used slow searches of lists. But since I started, my CS cla
 
 The code is compatible with python3 and python2 - I added python2 compatibility so that I could run it with pypy2 on windows. Moving from cPython to pypy, my program's pool generation is about 40 times faster, while the stacked solver ranges from 2 to 50 times faster.
 
-CollatzCrypt currently uses a pygame window to draw a bunch of lines and dots (70%-pretty, 30%-informative) after solving each problem. I'm considering switching to numpy because I want to learn it.
+CollatzCrypt currently uses a pygame window to draw a diagram of the solution after solving each problem.
